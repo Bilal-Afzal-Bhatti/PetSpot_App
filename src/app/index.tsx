@@ -6,21 +6,20 @@ import {
   ActivityIndicator,
   StyleSheet,
   ImageBackground,
-  Dimensions,
-  SafeAreaView,
+  useWindowDimensions,
   StatusBar,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "@/../Store/authStore";
 
 // Pre-required assets from assets/app_images
-const splashBgImage = require("@/../assets/app_images/splash_image.png");
-const petLogoImage = require("@/../assets/app_images/petLogo.png");
-
-const { width, height } = Dimensions.get("window");
+const splashBgImage = require("../../assets/app_images/splash_image.png");
+const petLogoImage = require("../../assets/app_images/petLogo.png");
 
 export default function Index() {
   const router = useRouter();
+  const { width, height } = useWindowDimensions();
   const token = useAuthStore((state) => state.token);
   const isHydrated = useAuthStore((state) => state.isHydrated);
 
@@ -41,7 +40,7 @@ export default function Index() {
   return (
     <ImageBackground
       source={splashBgImage}
-      style={styles.backgroundImage}
+      style={[styles.backgroundImage, { width, height }]}
       resizeMode="cover"
     >
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
@@ -49,7 +48,7 @@ export default function Index() {
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.contentContainer}>
             {/* Logo & Branding Section */}
-            <View style={styles.brandContainer}>
+            <View style={[styles.brandContainer, { marginTop: height * 0.1 }]}>
               <Image
                 source={petLogoImage}
                 style={styles.logo}
@@ -74,8 +73,6 @@ export default function Index() {
 
 const styles = StyleSheet.create({
   backgroundImage: {
-    width: width,
-    height: height,
     flex: 1,
   },
   overlay: {
@@ -94,7 +91,6 @@ const styles = StyleSheet.create({
   },
   brandContainer: {
     alignItems: "center",
-    marginTop: height * 0.1,
   },
   logo: {
     width: 120,

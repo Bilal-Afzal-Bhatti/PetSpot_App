@@ -12,11 +12,12 @@ import {
 import { Tabs, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useAuthStore } from "../../../Store/authStore";
 
-const logoImage = require("../../../assets/app_images/petLogo.png");
+// Update relative paths to match your root structure
+import { useAuthStore } from "@/../Store/authStore";
 
-// Base (content-only) tab bar height, safe-area inset is added on top of this
+const logoImage = require("@/../assets/app_images/petLogo.png");
+
 const BASE_TAB_HEIGHT = Platform.select({
   ios: 50,
   android: 56,
@@ -42,8 +43,6 @@ export default function TabsLayout() {
     router.replace("/(auth)/login");
   };
 
-  // Single source of truth for bottom safe area — no SafeAreaView double-wrapping.
-  // insets.bottom = height of the phone's own gesture bar / nav buttons.
   const tabBarBottomPadding = insets.bottom > 0 ? insets.bottom : 8;
   const tabBarHeight = BASE_TAB_HEIGHT + tabBarBottomPadding;
 
@@ -52,7 +51,7 @@ export default function TabsLayout() {
       <Tabs
         screenOptions={{
           headerStyle: {
-            backgroundColor: "#D86B35",
+            backgroundColor: "#191C33",
             elevation: 0,
             shadowOpacity: 0,
           },
@@ -61,8 +60,6 @@ export default function TabsLayout() {
             fontWeight: "bold",
             fontSize: 16,
           },
-          // React Navigation's header already respects insets.top natively —
-          // no extra SafeAreaView needed here.
           headerRight: () => (
             <TouchableOpacity
               onPress={() => setMenuVisible(true)}
@@ -73,7 +70,7 @@ export default function TabsLayout() {
               <Ionicons name="menu-outline" size={24} color="#ffffff" />
             </TouchableOpacity>
           ),
-          tabBarActiveTintColor: "#D86B35",
+          tabBarActiveTintColor: "#191C33",
           tabBarInactiveTintColor: "#6B7280",
           tabBarStyle: {
             backgroundColor: "#ffffff",
@@ -113,6 +110,7 @@ export default function TabsLayout() {
           name="pets"
           options={{
             title: "Pets",
+            headerShown: true,
             headerTitle: "Available Pets",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="paw-outline" size={size - 2} color={color} />
@@ -161,56 +159,59 @@ export default function TabsLayout() {
         <Pressable
           style={[
             styles.modalOverlay,
-            { paddingTop: insets.top + 8, paddingRight: 12 },
+            { paddingTop: insets.top + BASE_TAB_HEIGHT, paddingRight: 12 },
           ]}
           onPress={() => setMenuVisible(false)}
         >
-          <View style={styles.dropdownCard}>
-            <Text style={styles.sectionHeader}>Categories</Text>
+          {/* Stops touch propagation from closing modal when tapping inside */}
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            <View style={styles.dropdownCard}>
+              <Text style={styles.sectionHeader}>Categories</Text>
 
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => handleNavigation("/(tabs)/pets")}
-            >
-              <Ionicons name="paw-outline" size={18} color="#D86B35" />
-              <Text style={styles.menuItemText}>Pets for Sale</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => handleNavigation("/(tabs)/breeds")}
-            >
-              <Ionicons name="ribbon-outline" size={18} color="#D86B35" />
-              <Text style={styles.menuItemText}>Pet Breeds</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => handleNavigation("/(tabs)/blog")}
-            >
-              <Ionicons name="newspaper-outline" size={18} color="#D86B35" />
-              <Text style={styles.menuItemText}>Blog & Care</Text>
-            </TouchableOpacity>
-
-            <View style={styles.divider} />
-
-            {authUser ? (
-              <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-                <Ionicons name="log-out-outline" size={18} color="#EF4444" />
-                <Text style={[styles.menuItemText, styles.logoutText]}>
-                  Logout
-                </Text>
-              </TouchableOpacity>
-            ) : (
               <TouchableOpacity
                 style={styles.menuItem}
-                onPress={() => handleNavigation("/(auth)/login")}
+                onPress={() => handleNavigation("/(tabs)/pets")}
               >
-                <Ionicons name="log-in-outline" size={18} color="#D86B35" />
-                <Text style={styles.menuItemText}>Login / Signup</Text>
+                <Ionicons name="paw-outline" size={18} color="#D86B35" />
+                <Text style={styles.menuItemText}>Pets for Sale</Text>
               </TouchableOpacity>
-            )}
-          </View>
+
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => handleNavigation("/(tabs)/breeds")}
+              >
+                <Ionicons name="ribbon-outline" size={18} color="#D86B35" />
+                <Text style={styles.menuItemText}>Pet Breeds</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => handleNavigation("/(tabs)/blog")}
+              >
+                <Ionicons name="newspaper-outline" size={18} color="#D86B35" />
+                <Text style={styles.menuItemText}>Blog & Care</Text>
+              </TouchableOpacity>
+
+              <View style={styles.divider} />
+
+              {authUser ? (
+                <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+                  <Ionicons name="log-out-outline" size={18} color="#EF4444" />
+                  <Text style={[styles.menuItemText, styles.logoutText]}>
+                    Logout
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={styles.menuItem}
+                  onPress={() => handleNavigation("/(auth)/login")}
+                >
+                  <Ionicons name="log-in-outline" size={18} color="#D86B35" />
+                  <Text style={styles.menuItemText}>Login / Signup</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </Pressable>
         </Pressable>
       </Modal>
     </View>
@@ -228,8 +229,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   smallLogo: {
-    width: 32,
-    height: 32,
+    width: 28,
+    height: 28,
   },
   headerBrandText: {
     fontSize: 17,

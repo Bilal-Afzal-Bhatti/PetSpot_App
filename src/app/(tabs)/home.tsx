@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, memo, Suspense } from "react";
 import {
   View,
   Text,
@@ -8,32 +8,59 @@ import {
   Image,
   Dimensions,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 
+// Dynamic Imports / Lazy Component Rendering
+const AvailablePets = React.lazy(() => import("@/components/LandingPage/AvailablePets"));
+const MMPSection = React.lazy(() => import("@/components/LandingPage/MMP"));
+const ServicesSection = React.lazy(() => import("@/components/LandingPage/Service"));
+const JoinUsSection = React.lazy(() => import("@/components/LandingPage/joinUs"));
+const Footer = React.lazy(() => import("@/components/LandingPage/Footer"));
+
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const CAROUSEL_WIDTH = SCREEN_WIDTH - 32; // Account for horizontal padding
+const CAROUSEL_WIDTH = SCREEN_WIDTH - 32;
 
 const PET_IMAGES = [
-  require("../../../assets/pets/image1.jpg"),
-  require("../../../assets/pets/image2.webp"),
-  require("../../../assets/pets/image3.avif"),
-  require("../../../assets/pets/image4.webp"),
-  require("../../../assets/pets/image5.jpg"),
+  require("@/../assets/pets/image1.jpg"),
+  require("@/../assets/pets/image2.webp"),
+  require("@/../assets/pets/image3.avif"),
+  require("@/../assets/pets/image4.webp"),
+  require("@/../assets/pets/image5.jpg"),
 ];
+
 const STATS = [
   { label: "Happy Families", value: "10K+" },
   { label: "Pets Listed", value: "5K+" },
   { label: "Breeders", value: "500+" },
 ];
 
+// Memoized Helper Components to prevent unnecessary re-renders
+const StatsSection = memo(({ stats }: { stats: typeof STATS }) => (
+  <View style={styles.statsContainer}>
+    {stats.map((stat, i) => (
+      <View key={i} style={styles.statCard}>
+        <Text style={styles.statValue}>{stat.value}</Text>
+        <Text style={styles.statLabel}>{stat.label}</Text>
+      </View>
+    ))}
+  </View>
+));
+
+const ComponentFallback = () => (
+  <View style={styles.loadingContainer}>
+    <ActivityIndicator size="small" color="#D86B35" />
+  </View>
+);
+
 export default function Home() {
   const router = useRouter();
   const [selectedPet, setSelectedPet] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  
+
   const scrollViewRef = useRef<ScrollView>(null);
   const isProcessingRef = useRef(false);
 
@@ -64,7 +91,6 @@ export default function Home() {
     changeImage(prevIdx);
   }, [currentImageIndex, changeImage]);
 
-  // Automatic Carousel Scroll Timer
   useEffect(() => {
     const interval = setInterval(() => {
       nextImage();
@@ -73,31 +99,22 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [nextImage]);
 
-  const handleSearch = () => {
-    if (!selectedPet || selectedPet === "Select Pet Type") {
+  const handleSearch = useCallback(() => {
+    if (!selectedPet) {
       Alert.alert("Select Pet", "Please select a pet type first!");
       return;
     }
-
-    const route =
-      selectedPet === "Dogs"
-        ? "/(tabs)/home"
-        : selectedPet === "Cats"
-        ? "/(tabs)/home"
-        : selectedPet === "Small Pets"
-        ? "/(tabs)/home"
-        : "/(tabs)/home";
-
-    router.push(route as any);
-  };
+    router.push("/(tabs)/home" as any);
+  }, [selectedPet, router]);
 
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
+      removeClippedSubviews={true} // Unmounts offscreen views to save memory
     >
-      {/* Hero Welcome Banner */}
+      {/* Hero Welcome Header */}
       <View style={styles.badgeRow}>
         <Ionicons name="paw" size={18} color="#D86B35" />
         <Text style={styles.badgeText}>WELCOME TO PETS CORNER</Text>
@@ -143,16 +160,9 @@ export default function Home() {
       </View>
 
       {/* Quick Statistics Grid */}
-      <View style={styles.statsContainer}>
-        {STATS.map((stat, i) => (
-          <View key={i} style={styles.statCard}>
-            <Text style={styles.statValue}>{stat.value}</Text>
-            <Text style={styles.statLabel}>{stat.label}</Text>
-          </View>
-        ))}
-      </View>
+      <StatsSection stats={STATS} />
 
-      {/* Hero Image Carousel */}
+      {/* Hero Carousel */}
       <View style={styles.carouselContainer}>
         <ScrollView
           ref={scrollViewRef}
@@ -169,7 +179,6 @@ export default function Home() {
           ))}
         </ScrollView>
 
-        {/* Previous Arrow */}
         <TouchableOpacity
           style={[styles.arrowButton, styles.leftArrow]}
           onPress={prevImage}
@@ -178,7 +187,6 @@ export default function Home() {
           <Ionicons name="chevron-back" size={20} color="#FFFFFF" />
         </TouchableOpacity>
 
-        {/* Next Arrow */}
         <TouchableOpacity
           style={[styles.arrowButton, styles.rightArrow]}
           onPress={nextImage}
@@ -187,7 +195,6 @@ export default function Home() {
           <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
         </TouchableOpacity>
 
-        {/* Carousel Indicators */}
         <View style={styles.dotsContainer}>
           {PET_IMAGES.map((_, index) => (
             <TouchableOpacity
@@ -201,7 +208,6 @@ export default function Home() {
           ))}
         </View>
 
-        {/* Progress Bar Indicator */}
         <View style={styles.progressBarBackground}>
           <View
             style={[
@@ -213,9 +219,33 @@ export default function Home() {
           />
         </View>
       </View>
+
+      {/* Lazy Loaded Sub-Sections */}
+      <Suspense fallback={<ComponentFallback />}>
+        <AvailablePets />
+      </Suspense>
+
+      <Suspense fallback={<ComponentFallback />}>
+        <MMPSection />
+      </Suspense>
+      
+    
+
+
+      <Suspense fallback={<ComponentFallback />}>
+        <ServicesSection />
+      </Suspense>
+        <Suspense fallback={<ComponentFallback />}>
+        <JoinUsSection />
+      </Suspense>
+
+      <Suspense fallback={<ComponentFallback />}>
+        <Footer/>
+      </Suspense>
     </ScrollView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -289,7 +319,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   searchButton: {
-    backgroundColor: "#D86B35",
+    backgroundColor: "#FFAC0D",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -396,5 +426,9 @@ const styles = StyleSheet.create({
   progressBarFill: {
     height: "100%",
     backgroundColor: "#D86B35",
+  },
+  loadingContainer: {
+    paddingVertical: 20,
+    alignItems: "center",
   },
 });

@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   buttonActive: {
-    backgroundColor: "#D86B35",
+    backgroundColor: "#ffa500",
   },
   buttonDisabled: {
     backgroundColor: "#CBB3A5",

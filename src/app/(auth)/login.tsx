@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   buttonActive: {
-    backgroundColor: "#D86B35",
+    backgroundColor: "#ffa500",
   },
   buttonDisabled: {
     backgroundColor: "#9ab0a3",
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#D86B35",
+    backgroundColor: "#ffa500",
     marginTop: 12,
   },
   bannerTitle: {

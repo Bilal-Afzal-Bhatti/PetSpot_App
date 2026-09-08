@@ -1,22 +1,28 @@
-import React from "react";
 import { Stack } from "expo-router";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { StyleSheet } from "react-native";
 
-export default function BlogLayout() {
+export default function RootLayout() {
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="cat-care/index"
-        options={{ headerShown: true, title: "Cat Care", headerStyle: { backgroundColor: "#D86B35" }, headerTintColor: "#ffffff" }}
-      />
-      <Stack.Screen
-        name="dog-care/index"
-        options={{ headerShown: true, title: "Dog Care", headerStyle: { backgroundColor: "#D86B35" }, headerTintColor: "#ffffff" }}
-      />
-      <Stack.Screen
-        name="[slug]/index"
-        options={{ headerShown: true, title: "Blog Post", headerStyle: { backgroundColor: "#D86B35" }, headerTintColor: "#ffffff" }}
-      />
-    </Stack>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Stack
+        initialRouteName="index"
+        screenOptions={{
+          headerShown: false,
+          animation: "fade",
+        }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="pets_view/[id]" options={{ headerShown: false }} />
+           <Stack.Screen name="checkout/[id]" options={{ headerShown: false }} />
+      </Stack>
+    </GestureHandlerRootView>
   );
 }
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

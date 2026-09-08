@@ -1,6 +1,20 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { api } from "@/lib/axios"; // Centralized API instance
+import { persist, createJSONStorage } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Crypto from "expo-crypto";
+import { api } from "../lib/axios"; // Centralized API instance
+
+// React Native compatible UUID generator fallback
+const getRandomUUID = () => {
+  if (typeof Crypto !== "undefined" && Crypto.randomUUID) {
+    return Crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
 
 interface CheckoutDetails {
   fullName: string;
@@ -23,9 +37,6 @@ interface BuyState {
   setCheckoutDetails: (details: Partial<CheckoutDetails>) => void;
   clearCheckout: () => void;
   generateIdempotencyKey: () => string;
-  // Returns a redirect/success URL for BOTH payment methods now.
-  // ONLINE -> Stripe hosted checkout URL
-  // COD    -> backend-provided clean success URL (e.g. /orders/success?type=cod)
   processCheckout: (method?: "ONLINE" | "COD") => Promise<string | null>;
 }
 
@@ -47,7 +58,7 @@ export const useBuyStore = create<BuyState>()(
       error: null,
 
       setSelectedPet: (pet, userEmail) => {
-        const newKey = get().idempotencyKey || crypto.randomUUID();
+        const newKey = get().idempotencyKey || getRandomUUID();
         set((state) => ({
           selectedPet: pet,
           idempotencyKey: newKey,
@@ -80,7 +91,7 @@ export const useBuyStore = create<BuyState>()(
         }),
 
       generateIdempotencyKey: () => {
-        const key = crypto.randomUUID();
+        const key = getRandomUUID();
         set({ idempotencyKey: key });
         return key;
       },
@@ -132,9 +143,6 @@ export const useBuyStore = create<BuyState>()(
             return redirectUrl;
           }
 
-          // COD: use the clean, backend-provided success URL instead of
-          // silently discarding it. Falls back to a sane default just in
-          // case an older backend response doesn't include successUrl.
           const codSuccessUrl =
             typeof response.data?.successUrl === "string" && response.data.successUrl.length > 0
               ? response.data.successUrl
@@ -164,6 +172,7 @@ export const useBuyStore = create<BuyState>()(
     }),
     {
       name: "pet-buy-storage",
+      storage: createJSONStorage(() => AsyncStorage), // Native persistence engine
     }
   )
 );

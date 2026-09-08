@@ -90,7 +90,7 @@ export default function HeaderMenu() {
               <Text style={styles.sectionHeader}>Pets</Text>
               <TouchableOpacity
                 style={styles.menuItem}
-                onPress={() => handleNavigation("/(tabs)/home")}
+                onPress={() => handleNavigation("/(tabs)/Blogs/dog-care")}
               >
                 <Ionicons name="paw-outline" size={18} color="#D86B35" />
                 <Text style={styles.menuItemText}>Dogs for Sale</Text>
@@ -126,14 +126,14 @@ export default function HeaderMenu() {
               <Text style={styles.sectionHeader}>Blog & Care</Text>
               <TouchableOpacity
                 style={styles.menuItem}
-                onPress={() => handleNavigation("/(tabs)/home")}
+                onPress={() => handleNavigation("/(tabs)/Blogs/dog-care")}
               >
                 <Ionicons name="newspaper-outline" size={18} color="#D86B35" />
                 <Text style={styles.menuItemText}>Dog Care</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.menuItem}
-                onPress={() => handleNavigation("/(tabs)/home")}
+                onPress={() => handleNavigation("/(tabs)/Blogs/cat-care")}
               >
                 <Ionicons name="newspaper-outline" size={18} color="#D86B35" />
                 <Text style={styles.menuItemText}>Cat Care</Text>
@@ -177,7 +177,7 @@ export default function HeaderMenu() {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    backgroundColor: "#D86B35",
+    backgroundColor: "#191C33",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

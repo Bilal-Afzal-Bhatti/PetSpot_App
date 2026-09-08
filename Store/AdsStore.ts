@@ -1,11 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
-import { api } from "@/lib/axios"; // Centralized API instance
-
-const toast = {
-  success: (message?: string) => console.log(message),
-  error: (message?: string) => console.error(message),
-};
+import Toast from "react-native-toast-message";
+import { api } from "../lib/axios"; // Centralized API instance
 
 // Export Base_URL for backward compatibility if other files import it from here
 export const Base_URL = api.defaults.baseURL;
@@ -43,13 +39,19 @@ export const useAdStore = create<AdState>((set) => ({
       const res = await api.post('/api/ads', formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      toast.success(res.data.message || "Ad posted successfully");
+      Toast.show({
+        type: "success",
+        text1: res.data.message || "Ad posted successfully",
+      });
       return true;
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Failed to post ad");
+        Toast.show({
+          type: "error",
+          text1: error.response?.data?.message || "Failed to post ad",
+        });
       } else {
-        toast.error("Failed to post ad");
+        Toast.show({ type: "error", text1: "Failed to post ad" });
       }
       return false;
     } finally {
@@ -61,13 +63,19 @@ export const useAdStore = create<AdState>((set) => ({
     set({ isDeleting: true });
     try {
       const res = await api.delete(`/api/ads/${adId}`);
-      toast.success(res.data.message || "Ad deleted successfully");
+      Toast.show({
+        type: "success",
+        text1: res.data.message || "Ad deleted successfully",
+      });
       return true;
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Failed to delete ad");
+        Toast.show({
+          type: "error",
+          text1: error.response?.data?.message || "Failed to delete ad",
+        });
       } else {
-        toast.error("Failed to delete ad");
+        Toast.show({ type: "error", text1: "Failed to delete ad" });
       }
       return false;
     } finally {
@@ -81,13 +89,19 @@ export const useAdStore = create<AdState>((set) => ({
       const res = await api.patch(`/api/ads/${adId}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      toast.success(res.data.message || "Ad updated successfully");
+      Toast.show({
+        type: "success",
+        text1: res.data.message || "Ad updated successfully",
+      });
       return true;
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Failed to update ad");
+        Toast.show({
+          type: "error",
+          text1: error.response?.data?.message || "Failed to update ad",
+        });
       } else {
-        toast.error("Failed to update ad");
+        Toast.show({ type: "error", text1: "Failed to update ad" });
       }
       return false;
     } finally {
@@ -118,9 +132,12 @@ export const useAdStore = create<AdState>((set) => ({
       })) || [];
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Failed to fetch ads");
+        Toast.show({
+          type: "error",
+          text1: error.response?.data?.message || "Failed to fetch ads",
+        });
       } else {
-        toast.error("Failed to fetch ads");
+        Toast.show({ type: "error", text1: "Failed to fetch ads" });
       }
       return [];
     }
@@ -152,9 +169,12 @@ export const useAdStore = create<AdState>((set) => ({
       return { ads: mappedAds, pagination: res.data.pagination };
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Failed to fetch approved dog ads");
+        Toast.show({
+          type: "error",
+          text1: error.response?.data?.message || "Failed to fetch approved dog ads",
+        });
       } else {
-        toast.error("Failed to fetch approved dog ads");
+        Toast.show({ type: "error", text1: "Failed to fetch approved dog ads" });
       }
       return { ads: [], pagination: { currentPage: 1, totalPages: 1, totalAds: 0 } };
     } finally {
@@ -202,9 +222,12 @@ export const useAdStore = create<AdState>((set) => ({
       };
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Failed to fetch ad");
+        Toast.show({
+          type: "error",
+          text1: error.response?.data?.message || "Failed to fetch ad",
+        });
       } else {
-        toast.error("Failed to fetch ad");
+        Toast.show({ type: "error", text1: "Failed to fetch ad" });
       }
       return null;
     }
@@ -236,9 +259,12 @@ export const useAdStore = create<AdState>((set) => ({
       return { ads: mappedAds, pagination: res.data.pagination };
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Failed to fetch approved cat ads");
+        Toast.show({
+          type: "error",
+          text1: error.response?.data?.message || "Failed to fetch approved cat ads",
+        });
       } else {
-        toast.error("Failed to fetch approved cat ads");
+        Toast.show({ type: "error", text1: "Failed to fetch approved cat ads" });
       }
       return { ads: [], pagination: { currentPage: 1, totalPages: 1, totalAds: 0 } };
     } finally {
@@ -283,9 +309,12 @@ export const useAdStore = create<AdState>((set) => ({
       };
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Failed to fetch cat ad");
+        Toast.show({
+          type: "error",
+          text1: error.response?.data?.message || "Failed to fetch cat ad",
+        });
       } else {
-        toast.error("Failed to fetch cat ad");
+        Toast.show({ type: "error", text1: "Failed to fetch cat ad" });
       }
       return null;
     }
