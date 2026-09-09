@@ -15,8 +15,9 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="pets_view/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="pets_view/[slug]" options={{ headerShown: false }} />
            <Stack.Screen name="checkout/[id]" options={{ headerShown: false }} />
+           <Stack.Screen name="OrderSuccessContent" options={{headerShown :false}} />
       </Stack>
     </GestureHandlerRootView>
   );

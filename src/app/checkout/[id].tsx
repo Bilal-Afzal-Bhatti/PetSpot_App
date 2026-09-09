@@ -1,22 +1,27 @@
-import React, { useEffect, useState } from "react";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
+import { useEffect, useState } from "react";
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-  Image,
-  StyleSheet,
-  SafeAreaView,
-  Alert,
+  View,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
-import * as WebBrowser from "expo-web-browser";
 
-// Keep checkout state working without requiring a native storage package.
-// Web builds use localStorage; native builds use an in-memory fallback.
+import HeaderMenu from "@/components/HeaderMenu";
+
+// Relative Store Imports (Keep single clean imports)
+import { useAuthStore } from "@/../Store/authStore";
+import { useBuyStore } from "@/../Store/buyStore";
+
+// Fallback storage setup
 const memoryStorage: Record<string, string> = {};
 const checkoutStorage = {
   async getItem(key: string): Promise<string | null> {
@@ -25,7 +30,7 @@ const checkoutStorage = {
         return globalThis.localStorage.getItem(key);
       }
     } catch {
-      // Fall back to memory storage when localStorage is unavailable.
+      // Fallback
     }
     return memoryStorage[key] ?? null;
   },
@@ -36,15 +41,11 @@ const checkoutStorage = {
         return;
       }
     } catch {
-      // Fall back to memory storage when localStorage is unavailable.
+      // Fallback
     }
     memoryStorage[key] = value;
   },
 };
-
-// Relative store imports - adjust relative path as needed
-import { useBuyStore } from "@/../Store/buyStore";
-import { useAuthStore } from "@/../Store/authStore";
 
 export default function CheckoutScreen() {
   const router = useRouter();
@@ -60,11 +61,27 @@ export default function CheckoutScreen() {
     error,
   } = useBuyStore() as any;
 
-  const { user, authUser } = useAuthStore() as any;
-  const activeUser = user || authUser;
+  const authState = useAuthStore() as any;
+
+  // Debugging user extraction across various common Zustand auth structures
+  const activeUser = authState?.user || authState?.authUser || authState?.currentUser;
+  const userEmail =
+    activeUser?.email ||
+    activeUser?.user?.email ||
+    checkoutDetails?.email ||
+    "";
 
   const [formError, setFormError] = useState("");
   const [isInitializing, setIsInitializing] = useState(true);
+
+  // Debug log to inspect Auth Store data structure in your console
+  useEffect(() => {
+    console.log("--- DEBUG AUTH STORE ---");
+    console.log("Raw Auth State:", authState);
+    console.log("Resolved Active User:", activeUser);
+    console.log("Resolved Email:", userEmail);
+    console.log("------------------------");
+  }, [authState, activeUser, userEmail]);
 
   useEffect(() => {
     const initCheckout = async () => {
@@ -99,32 +116,27 @@ export default function CheckoutScreen() {
         console.error("AsyncStorage error during init:", err);
       }
 
-      setCheckoutDetails({
-        fullName: checkoutDetails.fullName || "",
-        phone: checkoutDetails.phone || "",
-        address: checkoutDetails.address || "",
-        city: checkoutDetails.city || "",
-        postalCode: checkoutDetails.postalCode || "",
-        email: activeUser?.email || checkoutDetails.email || "",
-      });
-
       setIsInitializing(false);
     };
 
     initCheckout();
   }, []);
 
+  // Update checkoutDetails email automatically when user profile becomes available
+  useEffect(() => {
+    if (userEmail && checkoutDetails?.email !== userEmail) {
+      setCheckoutDetails({ email: userEmail });
+    }
+  }, [userEmail]);
   const handleInputChange = (field: string, value: string) => {
     setCheckoutDetails({ [field]: value });
     if (formError) setFormError("");
   };
 
   const validateShippingFields = () => {
-    const currentEmail = activeUser?.email || checkoutDetails.email;
-
     if (
       !checkoutDetails.fullName ||
-      !currentEmail ||
+      !userEmail ||
       !checkoutDetails.phone ||
       !checkoutDetails.address ||
       !checkoutDetails.city
@@ -133,7 +145,7 @@ export default function CheckoutScreen() {
       return null;
     }
 
-    return currentEmail;
+    return userEmail;
   };
 
   const handleOnlinePayment = async () => {
@@ -148,7 +160,6 @@ export default function CheckoutScreen() {
       await checkoutStorage.setItem("lastOrderType", "ONLINE");
 
       if (redirectUrl) {
-        // Opens the Stripe Checkout page inside an in-app browser overlay
         const result = await WebBrowser.openBrowserAsync(redirectUrl);
         if (result.type === "dismiss") {
           Alert.alert("Checkout", "Payment session was closed.");
@@ -170,7 +181,7 @@ export default function CheckoutScreen() {
     setCheckoutDetails({ paymentMethod: "COD", email: currentEmail });
 
     try {
-      const successUrl = await processCheckout("COD");
+      await processCheckout("COD");
       await checkoutStorage.setItem("lastOrderType", "COD");
 
       clearCheckout();
@@ -216,8 +227,8 @@ export default function CheckoutScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <HeaderMenu />
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-        {/* Back Button */}
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={20} color="#ffffff" />
           <Text style={styles.backButtonText}>Back to Details</Text>
@@ -225,7 +236,6 @@ export default function CheckoutScreen() {
 
         <Text style={styles.headerTitle}>Secure Checkout</Text>
 
-        {/* Order Summary Card */}
         <View style={styles.card}>
           <Text style={styles.sectionHeader}>Order Summary</Text>
           <View style={styles.summaryRow}>
@@ -258,7 +268,6 @@ export default function CheckoutScreen() {
           </View>
         </View>
 
-        {/* Shipping Form Card */}
         <View style={styles.card}>
           <Text style={styles.sectionHeader}>1. Shipping & Contact Information</Text>
 
@@ -267,7 +276,7 @@ export default function CheckoutScreen() {
             <TextInput
               style={styles.input}
               placeholder="Enter your full name"
-              value={checkoutDetails.fullName || ""}
+              value={checkoutDetails?.fullName || ""}
               onChangeText={(text) => handleInputChange("fullName", text)}
             />
           </View>
@@ -277,7 +286,8 @@ export default function CheckoutScreen() {
             <TextInput
               style={[styles.input, styles.disabledInput]}
               editable={false}
-              value={activeUser?.email || checkoutDetails.email || ""}
+              value={userEmail}
+              placeholder="No email found"
             />
           </View>
 
@@ -287,7 +297,7 @@ export default function CheckoutScreen() {
               style={styles.input}
               placeholder="+92 300 1234567"
               keyboardType="phone-pad"
-              value={checkoutDetails.phone || ""}
+              value={checkoutDetails?.phone || ""}
               onChangeText={(text) => handleInputChange("phone", text)}
             />
           </View>
@@ -297,7 +307,7 @@ export default function CheckoutScreen() {
             <TextInput
               style={styles.input}
               placeholder="Islamabad"
-              value={checkoutDetails.city || ""}
+              value={checkoutDetails?.city || ""}
               onChangeText={(text) => handleInputChange("city", text)}
             />
           </View>
@@ -307,7 +317,7 @@ export default function CheckoutScreen() {
             <TextInput
               style={styles.input}
               placeholder="House #123, Street Name"
-              value={checkoutDetails.address || ""}
+              value={checkoutDetails?.address || ""}
               onChangeText={(text) => handleInputChange("address", text)}
             />
           </View>
@@ -318,27 +328,25 @@ export default function CheckoutScreen() {
               style={styles.input}
               placeholder="44000"
               keyboardType="numeric"
-              value={checkoutDetails.postalCode || ""}
+              value={checkoutDetails?.postalCode || ""}
               onChangeText={(text) => handleInputChange("postalCode", text)}
             />
           </View>
 
-          {(formError || error) ? (
+          {formError || error ? (
             <Text style={styles.errorText}>{formError || error}</Text>
           ) : null}
         </View>
 
-        {/* Payment Options Card */}
         <View style={styles.card}>
           <Text style={styles.sectionHeader}>2. Choose Payment & Complete Order</Text>
 
-          {/* Stripe Online Payment */}
           <TouchableOpacity
             style={[styles.paymentBtn, styles.onlineBtn]}
             disabled={loading}
             onPress={handleOnlinePayment}
           >
-            {loading && checkoutDetails.paymentMethod === "ONLINE" ? (
+            {loading && checkoutDetails?.paymentMethod === "ONLINE" ? (
               <ActivityIndicator color="#ffffff" />
             ) : (
               <View style={styles.btnContent}>
@@ -350,13 +358,12 @@ export default function CheckoutScreen() {
             )}
           </TouchableOpacity>
 
-          {/* Cash on Delivery */}
           <TouchableOpacity
             style={[styles.paymentBtn, styles.codBtn]}
             disabled={loading}
             onPress={handleCodPayment}
           >
-            {loading && checkoutDetails.paymentMethod === "COD" ? (
+            {loading && checkoutDetails?.paymentMethod === "COD" ? (
               <ActivityIndicator color="#000000" />
             ) : (
               <View style={styles.btnContent}>

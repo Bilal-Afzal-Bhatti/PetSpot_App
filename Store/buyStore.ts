@@ -2,9 +2,8 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Crypto from "expo-crypto";
-import { api } from "../lib/axios"; // Centralized API instance
+import { api } from "../lib/axios";
 
-// React Native compatible UUID generator fallback
 const getRandomUUID = () => {
   if (typeof Crypto !== "undefined" && Crypto.randomUUID) {
     return Crypto.randomUUID();
@@ -26,6 +25,11 @@ interface CheckoutDetails {
   paymentMethod: "ONLINE" | "COD";
 }
 
+interface DeepLinkOptions {
+  successUrl?: string;
+  cancelUrl?: string;
+}
+
 interface BuyState {
   selectedPet: any | null;
   idempotencyKey: string | null;
@@ -37,31 +41,37 @@ interface BuyState {
   setCheckoutDetails: (details: Partial<CheckoutDetails>) => void;
   clearCheckout: () => void;
   generateIdempotencyKey: () => string;
-  processCheckout: (method?: "ONLINE" | "COD") => Promise<string | null>;
+  processCheckout: (
+    method?: "ONLINE" | "COD",
+    options?: DeepLinkOptions
+  ) => Promise<string | null>;
 }
+
+const initialCheckoutDetails: CheckoutDetails = {
+  fullName: "",
+  email: "",
+  phone: "",
+  address: "",
+  city: "",
+  postalCode: "",
+  paymentMethod: "ONLINE",
+};
 
 export const useBuyStore = create<BuyState>()(
   persist(
     (set, get) => ({
       selectedPet: null,
       idempotencyKey: null,
-      checkoutDetails: {
-        fullName: "",
-        email: "",
-        phone: "",
-        address: "",
-        city: "",
-        postalCode: "",
-        paymentMethod: "ONLINE",
-      },
+      checkoutDetails: initialCheckoutDetails,
       loading: false,
       error: null,
 
+      // FIX: Always generate a NEW idempotency key when selecting a new pet
       setSelectedPet: (pet, userEmail) => {
-        const newKey = get().idempotencyKey || getRandomUUID();
+        const freshKey = getRandomUUID();
         set((state) => ({
           selectedPet: pet,
-          idempotencyKey: newKey,
+          idempotencyKey: freshKey,
           checkoutDetails: {
             ...state.checkoutDetails,
             email: userEmail || state.checkoutDetails.email,
@@ -79,15 +89,7 @@ export const useBuyStore = create<BuyState>()(
           selectedPet: null,
           idempotencyKey: null,
           error: null,
-          checkoutDetails: {
-            fullName: "",
-            email: "",
-            phone: "",
-            address: "",
-            city: "",
-            postalCode: "",
-            paymentMethod: "ONLINE",
-          },
+          checkoutDetails: initialCheckoutDetails,
         }),
 
       generateIdempotencyKey: () => {
@@ -96,7 +98,7 @@ export const useBuyStore = create<BuyState>()(
         return key;
       },
 
-      processCheckout: async (method) => {
+      processCheckout: async (method, options) => {
         const { selectedPet, checkoutDetails, idempotencyKey } = get();
         if (!selectedPet) throw new Error("No pet selected for purchase.");
 
@@ -107,6 +109,8 @@ export const useBuyStore = create<BuyState>()(
         };
 
         set({ loading: true, error: null, checkoutDetails: finalCheckoutDetails });
+        
+        // Ensure key exists
         const currentKey = idempotencyKey || get().generateIdempotencyKey();
 
         const extractedImage =
@@ -118,17 +122,20 @@ export const useBuyStore = create<BuyState>()(
 
         try {
           const response = await api.post(
-            `/api/orders/checkout`,
+            `/api/orders/checkout/mobile`,
             {
               petId: selectedPet._id || selectedPet.id,
               title: selectedPet.name || selectedPet.title || selectedPet.breed,
               price: selectedPet.price,
               petImage: extractedImage,
               customerInfo: finalCheckoutDetails,
+              successUrl: options?.successUrl,
+              cancelUrl: options?.cancelUrl,
             },
             {
               headers: {
-                "Idempotency-Key": currentKey,
+                // FIX: Match lowercase header name expected by Node/Express
+                "idempotency-key": currentKey,
               },
             }
           );
@@ -137,30 +144,28 @@ export const useBuyStore = create<BuyState>()(
 
           if (finalPaymentMethod === "ONLINE") {
             const redirectUrl = response.data?.url;
-            if (!redirectUrl || typeof redirectUrl !== "string" || !redirectUrl.startsWith("http")) {
+            if (
+              !redirectUrl ||
+              typeof redirectUrl !== "string" ||
+              !redirectUrl.startsWith("http")
+            ) {
               throw new Error("Invalid payment gateway redirect URL received from server.");
             }
             return redirectUrl;
           }
 
           const codSuccessUrl =
-            typeof response.data?.successUrl === "string" && response.data.successUrl.length > 0
+            typeof response.data?.successUrl === "string" &&
+            response.data.successUrl.length > 0
               ? response.data.successUrl
               : "/orders/success?type=cod";
 
           return codSuccessUrl;
         } catch (err: any) {
-          if (!err.response) {
-            console.error("Axios Network Error / CORS Block detected:", {
-              message: err.message,
-              code: err.code,
-            });
-          }
-
           const errorMsg =
             err.response?.data?.message ||
             (err.message === "Network Error"
-              ? "Network Error: Please check if backend server is running and allows custom headers (CORS)."
+              ? "Network Error: Please check backend connectivity."
               : null) ||
             err.message ||
             "Checkout failed.";
@@ -172,7 +177,7 @@ export const useBuyStore = create<BuyState>()(
     }),
     {
       name: "pet-buy-storage",
-      storage: createJSONStorage(() => AsyncStorage), // Native persistence engine
+      storage: createJSONStorage(() => AsyncStorage),
     }
   )
 );

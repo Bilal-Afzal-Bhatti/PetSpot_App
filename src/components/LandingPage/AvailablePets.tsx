@@ -20,6 +20,7 @@ interface Pet {
   _id?: string;
   id?: string;
   name?: string;
+  petName?: string;
   title?: string;
   img?: string;
   image?: string;
@@ -51,6 +52,20 @@ const shuffleArray = <T,>(array: T[]): T[] => {
   return arr;
 };
 
+// Safe slugify helper for Native JS engines (Hermes / JavaScriptCore)
+const slugify = (s?: string) => {
+  if (!s) return "";
+  return s
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[\s\_]+/g, "-")
+    .replace(/[^\w\-]+/g, "")
+    .replace(/\-\-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+};
+
 export default function AvailablePets() {
   const router = useRouter();
   const [pets, setPets] = useState<Pet[]>([]);
@@ -64,8 +79,8 @@ export default function AvailablePets() {
         const store = useAdStore.getState();
 
         const [dogsData, catsData] = await Promise.all([
-          store.getApprovedDogAds ? store.getApprovedDogAds(1, 5) : Promise.resolve({ ads: [] }),
-          store.getApprovedCatAds ? store.getApprovedCatAds(1, 5) : Promise.resolve({ ads: [] }),
+          store.getApprovedAds ? store.getApprovedAds("dogs") : Promise.resolve({ ads: [] }),
+          store.getApprovedAds ? store.getApprovedAds("cats") : Promise.resolve({ ads: [] }),
         ]);
 
         if (isMounted) {
@@ -88,12 +103,22 @@ export default function AvailablePets() {
     };
   }, []);
 
-  const handleViewPet = (pet: Pet) => {
-    const petId = pet._id || pet.id;
-    if (petId) {
-      router.push(`/pets_view/${petId}`);
-    }
-  };
+const handleViewPet = (petItem: any) => {
+  const petId = petItem._id || petItem.id;
+  const name = petItem.petName || petItem.name || "pet";
+  const breed = petItem.breed || "dog";
+  const petSlug = `${slugify(name)}-${slugify(breed)}`;
+  const petCategory = petItem.category || petItem.type || "dogs";
+
+  router.push({
+    pathname: "/pets_view/[slug]",
+    params: {
+      slug: petSlug,
+      id: petId,
+      category: petCategory,
+    },
+  });
+};
 
   return (
     <View style={styles.container}>
@@ -130,7 +155,7 @@ export default function AvailablePets() {
           {pets.map((pet, index) => {
             const petId = pet._id || pet.id || index.toString();
             const petImage = getPetImage(pet);
-            const petName = pet.name || pet.title || "Pet";
+            const petName = pet.petName || pet.name || pet.title || "Pet";
             const petCategory = pet.category || pet.type || "pets";
 
             return (

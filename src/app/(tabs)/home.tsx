@@ -19,7 +19,7 @@ const AvailablePets = React.lazy(() => import("@/components/LandingPage/Availabl
 const MMPSection = React.lazy(() => import("@/components/LandingPage/MMP"));
 const ServicesSection = React.lazy(() => import("@/components/LandingPage/Service"));
 const JoinUsSection = React.lazy(() => import("@/components/LandingPage/joinUs"));
-const Footer = React.lazy(() => import("@/components/LandingPage/Footer"));
+
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CAROUSEL_WIDTH = SCREEN_WIDTH - 32;
@@ -228,20 +228,15 @@ export default function Home() {
       <Suspense fallback={<ComponentFallback />}>
         <MMPSection />
       </Suspense>
-      
-    
 
-
-      <Suspense fallback={<ComponentFallback />}>
+        <Suspense fallback={<ComponentFallback />}>
         <ServicesSection />
       </Suspense>
-        <Suspense fallback={<ComponentFallback />}>
+      <Suspense fallback={<ComponentFallback />}>
         <JoinUsSection />
       </Suspense>
 
-      <Suspense fallback={<ComponentFallback />}>
-        <Footer/>
-      </Suspense>
+
     </ScrollView>
   );
 }
