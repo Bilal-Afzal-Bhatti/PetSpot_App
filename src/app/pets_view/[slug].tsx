@@ -17,6 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { Base_URL } from "@/../Store/AdsStore";
 import { useBuyStore } from "@/../Store/buyStore";
+import HeaderMenu from "@/components/HeaderMenu";
 
 const { width } = Dimensions.get("window");
 
@@ -159,6 +160,7 @@ export default function PetDetailPage() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <HeaderMenu/>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Back Button */}
         <TouchableOpacity style={styles.backRow} onPress={() => router.back()}>

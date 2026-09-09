@@ -16,7 +16,7 @@ import {
 } from "react-native";
 
 import HeaderMenu from "@/components/HeaderMenu";
-
+import * as Linking from "expo-linking";
 // Relative Store Imports (Keep single clean imports)
 import { useAuthStore } from "@/../Store/authStore";
 import { useBuyStore } from "@/../Store/buyStore";
@@ -148,50 +148,66 @@ export default function CheckoutScreen() {
     return userEmail;
   };
 
-  const handleOnlinePayment = async () => {
-    setFormError("");
-    const currentEmail = validateShippingFields();
-    if (!currentEmail) return;
 
-    setCheckoutDetails({ paymentMethod: "ONLINE", email: currentEmail });
+const handleOnlinePayment = async () => {
+  setFormError("");
+  const currentEmail = validateShippingFields();
+  if (!currentEmail) return;
 
-    try {
-      const redirectUrl = await processCheckout("ONLINE");
-      await checkoutStorage.setItem("lastOrderType", "ONLINE");
+  setCheckoutDetails({ paymentMethod: "ONLINE", email: currentEmail });
 
-      if (redirectUrl) {
-        const result = await WebBrowser.openBrowserAsync(redirectUrl);
-        if (result.type === "dismiss") {
-          Alert.alert("Checkout", "Payment session was closed.");
-        }
-      } else {
-        throw new Error("Stripe redirect URL not received from server.");
+  try {
+    const redirectTo = Linking.createURL("orders/success");
+
+    const redirectUrl = await processCheckout("ONLINE", {
+      successUrl: `${redirectTo}?session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: Linking.createURL("checkout"),
+    });
+
+    await checkoutStorage.setItem("lastOrderType", "ONLINE");
+
+    if (redirectUrl) {
+      const result = await WebBrowser.openAuthSessionAsync(redirectUrl, redirectTo);
+
+      if (result.type === "success" && result.url) {
+        const url = new URL(result.url);
+        const sessionId = url.searchParams.get("session_id");
+
+        router.replace({
+          pathname: "/orders/success",
+          params: sessionId ? { session_id: sessionId } : {},
+        });
+      } else if (result.type === "cancel" || result.type === "dismiss") {
+        Alert.alert("Checkout", "Payment session was closed.");
       }
-    } catch (err: any) {
-      console.error("Online checkout error:", err);
-      setFormError(err?.message || "Something went wrong starting your payment. Please try again.");
+    } else {
+      throw new Error("Stripe redirect URL not received from server.");
     }
-  };
+  } catch (err: any) {
+    console.error("Online checkout error:", err);
+    setFormError(err?.message || "Something went wrong starting your payment. Please try again.");
+  }
+};
+const handleCodPayment = async () => {
+  setFormError("");
+  const currentEmail = validateShippingFields();
+  if (!currentEmail) return;
 
-  const handleCodPayment = async () => {
-    setFormError("");
-    const currentEmail = validateShippingFields();
-    if (!currentEmail) return;
+  setCheckoutDetails({ paymentMethod: "COD", email: currentEmail });
 
-    setCheckoutDetails({ paymentMethod: "COD", email: currentEmail });
+  try {
+    await processCheckout("COD");
+    await checkoutStorage.setItem("lastOrderType", "COD");
 
-    try {
-      await processCheckout("COD");
-      await checkoutStorage.setItem("lastOrderType", "COD");
-
-      clearCheckout();
-      Alert.alert("Success", "Your Cash on Delivery order has been placed!");
-      router.replace("/(tabs)/home");
-    } catch (err: any) {
-      console.error("COD checkout error:", err);
-      setFormError(err?.message || "Something went wrong placing your order. Please try again.");
-    }
-  };
+    router.replace({
+      pathname: "/orders/success",
+      params: { type: "cod" },
+    });
+  } catch (err: any) {
+    console.error("COD checkout error:", err);
+    setFormError(err?.message || "Something went wrong placing your order. Please try again.");
+  }
+};
 
   if (isInitializing) {
     return (

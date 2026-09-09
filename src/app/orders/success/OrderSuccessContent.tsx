@@ -17,7 +17,6 @@ export default function OrderSuccessContent() {
   const router = useRouter();
   const searchParams = useLocalSearchParams();
 
-  // Route parameters passed via Expo Router URL or deep links
   const type = searchParams.type as string | undefined;
   const sessionId = searchParams.session_id as string | undefined;
 
@@ -31,7 +30,7 @@ export default function OrderSuccessContent() {
     let isMounted = true;
 
     const verifyOnlinePayment = async () => {
-      // 1. Handle Cash on Delivery
+      // 1. Handle Cash on Delivery — already confirmed server-side at checkout
       if (type === "cod") {
         clearCheckout();
         return;
@@ -47,7 +46,9 @@ export default function OrderSuccessContent() {
 
           if (isMounted) {
             if (response.data?.success) {
-              setVerificationStatus("Payment verified & status updated to PAID!");
+              setVerificationStatus(
+                response.data.message || "Payment verified & status updated to PAID!"
+              );
               setIsSuccess(true);
             } else {
               setVerificationStatus("Verification pending or failed. Please contact support.");
@@ -57,13 +58,12 @@ export default function OrderSuccessContent() {
         } catch (err: any) {
           console.error("Payment verification call failed:", err);
           if (isMounted) {
-            // Handle edge case where webhook or previous call already verified it
             const apiMessage = err.response?.data?.message;
             if (apiMessage?.includes("already verified")) {
               setVerificationStatus("Payment already verified!");
               setIsSuccess(true);
             } else {
-              setVerificationStatus("Failed to verify payment with server.");
+              setVerificationStatus(apiMessage || "Failed to verify payment with server.");
               setIsSuccess(false);
             }
           }
@@ -90,7 +90,6 @@ export default function OrderSuccessContent() {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <View style={styles.card}>
-          {/* Status Icon */}
           <View
             style={[
               styles.iconContainer,
@@ -108,7 +107,6 @@ export default function OrderSuccessContent() {
             )}
           </View>
 
-          {/* Title & Description */}
           <Text style={styles.title}>
             {verifying
               ? "Verifying Payment..."
@@ -124,7 +122,6 @@ export default function OrderSuccessContent() {
                 "Thank you! Your payment was processed successfully through Stripe."}
           </Text>
 
-          {/* Action Button */}
           <TouchableOpacity
             style={[styles.homeButton, verifying && styles.disabledButton]}
             disabled={verifying}
@@ -142,7 +139,7 @@ export default function OrderSuccessContent() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#191C33",
+    backgroundColor: "#F9FAFB",
   },
   container: {
     flex: 1,
@@ -153,54 +150,47 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#ffffff",
     borderRadius: 24,
-    padding: 24,
-    width: "100%",
-    maxWidth: 380,
+    padding: 28,
     alignItems: "center",
+    width: "100%",
+    maxWidth: 360,
     elevation: 4,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
     shadowRadius: 10,
   },
   iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#DCFCE7",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 16,
   },
   errorIconContainer: {
-    backgroundColor: "#FEE2E2",
+    marginBottom: 16,
   },
   title: {
     fontSize: 20,
     fontWeight: "800",
     color: "#111827",
+    marginBottom: 8,
     textAlign: "center",
-    marginBottom: 10,
   },
   description: {
     fontSize: 14,
     color: "#6B7280",
     textAlign: "center",
-    lineHeight: 20,
     marginBottom: 24,
+    lineHeight: 20,
   },
   homeButton: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
     gap: 8,
     backgroundColor: "#111827",
-    width: "100%",
     paddingVertical: 14,
+    paddingHorizontal: 32,
     borderRadius: 14,
   },
   disabledButton: {
-    opacity: 0.5,
+    opacity: 0.6,
   },
   homeButtonText: {
     color: "#ffffff",
