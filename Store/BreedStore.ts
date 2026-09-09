@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { api } from "@/lib/axios";
+import { api } from "../lib/axios";
 
 export interface OverviewPoint {
   title: string;

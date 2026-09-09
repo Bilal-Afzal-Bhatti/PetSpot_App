@@ -1,13 +1,20 @@
 import React from "react";
 import { View, Text, ImageBackground, StyleSheet } from "react-native";
-import { Link } from "expo-router";
+import { Link, useLocalSearchParams, type Href } from "expo-router";
 
-const catsHeroImage = require("../../../../assets/Blog/blog.webp");
+const catBreedHeroImage = require("../../../../assets/HeroSectionBG/rottweiler.webp");
 
-export default function CatsCareHeroSection() {
+export default function CatBreedInfoHeroSection() {
+  const { breed } = useLocalSearchParams<{ breed: string }>();
+
+  const breedName =
+    typeof breed === "string"
+      ? breed.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+      : "";
+
   return (
     <ImageBackground
-      source={catsHeroImage}
+      source={catBreedHeroImage}
       resizeMode="cover"
       style={styles.section}
     >
@@ -18,10 +25,15 @@ export default function CatsCareHeroSection() {
           <Link href="/" style={styles.homeLink}>
             Home
           </Link>
-          <Text style={styles.breadcrumbText}> / Blog / cat care</Text>
+          <Text style={styles.breadcrumbText}> / </Text>
+          {/* Clickable Cat Breeds */}
+          <Link href={"/cat-breed" as Href} style={styles.homeLink}>
+            Cat Breeds
+          </Link>
+          <Text style={styles.breadcrumbText}> / {breedName}</Text>
         </View>
 
-        <Text style={styles.title}>Cat Care</Text>
+        <Text style={styles.title}>{breedName || "Cat Breed"} Cat Breed</Text>
       </View>
     </ImageBackground>
   );
@@ -51,11 +63,15 @@ const styles = StyleSheet.create({
     textShadowColor: "rgba(0,0,0,0.6)",
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 8,
+    textTransform: "capitalize",
+    textAlign: "center",
   },
   breadcrumbRow: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 5,
+    flexWrap: "wrap",
+    justifyContent: "center",
   },
   homeLink: {
     fontSize: 13,

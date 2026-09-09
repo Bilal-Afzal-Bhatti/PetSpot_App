@@ -75,12 +75,8 @@ export default function AllPetsPage() {
         const store = useAdStore.getState();
 
         const [dogsData, catsData] = await Promise.all([
-          store.getApprovedDogAds
-            ? store.getApprovedDogAds(1, 50)
-            : Promise.resolve({ ads: [] }),
-          store.getApprovedCatAds
-            ? store.getApprovedCatAds(1, 50)
-            : Promise.resolve({ ads: [] }),
+          store.getApprovedAds ? store.getApprovedAds("dogs", 1, 50) : Promise.resolve({ ads: [] }),
+          store.getApprovedAds ? store.getApprovedAds("cats", 1, 50) : Promise.resolve({ ads: [] }),
         ]);
 
         if (!isMounted) return;

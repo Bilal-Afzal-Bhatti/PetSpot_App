@@ -22,18 +22,7 @@ const joinButtons = [
 ];
 
 const cards = [
-  {
-    src: require("@/assets/joinus/labrador-2021.webp"),
-    title: "Labrador Retriever",
-  },
-  {
-    src: require("@/assets/joinus/guinea_pigs_2021.webp"),
-    title: "Guinea Pigs",
-  },
-  {
-    src: require("@/assets/joinus/persian_cat_2021.webp"),
-    title: "Persian Cat",
-  },
+
   {
     src: require("@/assets/joinus/breed_2021.webp"),
     title: "Breed Selector",
