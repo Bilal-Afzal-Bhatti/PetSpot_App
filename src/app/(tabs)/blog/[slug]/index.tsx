@@ -1,6 +1,7 @@
 // app/(tabs)/blog/[slug]/index.tsx
 
-import { View, StyleSheet } from "react-native";
+import React from "react";
+import { ScrollView, StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import CatsCareHeroSection from "../../../../components/Blogs/Cats-care/CatsCareHeroSection";
 import PetsNavbar from "@/components/Blogs/Cats-care/PetsNavbar";
@@ -11,12 +12,16 @@ export default function SingleBlogScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
 
   return (
-    <View style={styles.container}>
+    <ScrollView 
+      style={styles.container} 
+      contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
+    >
       <CatsCareHeroSection />
       <PetsNavbar />
       <SingleBlog slug={slug} />
       <GuaranteeBadges />
-    </View>
+    </ScrollView>
   );
 }
 
@@ -24,5 +29,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#ffffff",
+  },
+  contentContainer: {
+    flexGrow: 1,
+    paddingBottom: 40, // Ensures space at the bottom for scrolling past badges
   },
 });

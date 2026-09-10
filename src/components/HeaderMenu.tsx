@@ -1,8 +1,9 @@
 import { useAuthStore } from "@/../Store/authStore";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { Href, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  Dimensions,
   Image,
   Modal,
   Pressable,
@@ -15,22 +16,28 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const logoImage = require("@/../assets/app_images/petLogo.png");
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const DRAWER_WIDTH = SCREEN_WIDTH * 0.7;
 
 export default function HeaderMenu() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [menuVisible, setMenuVisible] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
+
+  const [petsExpanded, setPetsExpanded] = useState(false);
+  const [breedsExpanded, setBreedsExpanded] = useState(false);
+  const [blogExpanded, setBlogExpanded] = useState(false);
 
   const authUser = useAuthStore((state) => state.authUser);
   const logout = useAuthStore((state) => state.logout);
 
-  const handleNavigation = (path: string) => {
-    setMenuVisible(false);
-    router.push(path as any);
+  const handleNavigation = (path: Href) => {
+    setDrawerVisible(false);
+    router.push(path);
   };
 
   const handleLogout = async () => {
-    setMenuVisible(false);
+    setDrawerVisible(false);
     await logout();
     router.replace("/(auth)/login");
   };
@@ -42,6 +49,16 @@ export default function HeaderMenu() {
         { paddingTop: insets.top, height: 60 + insets.top },
       ]}
     >
+      {/* 1. Left: Hamburger Icon */}
+      <TouchableOpacity
+        style={styles.headerButton}
+        onPress={() => setDrawerVisible(true)}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <Ionicons name="menu-outline" size={28} color="#ffffff" />
+      </TouchableOpacity>
+
+      {/* 2. Middle: Logo and Name */}
       <TouchableOpacity
         style={styles.logoRow}
         onPress={() => router.push("/(tabs)/home")}
@@ -50,9 +67,14 @@ export default function HeaderMenu() {
         <Text style={styles.brandTitle}>myPetshop</Text>
       </TouchableOpacity>
 
+      {/* 3. Right: Avatar or Profile Icon */}
       <TouchableOpacity
-        style={styles.menuButton}
-        onPress={() => setMenuVisible(true)}
+        style={styles.headerButton}
+        onPress={() =>
+          authUser
+            ? router.push("/(tabs)/profile")
+            : router.push("/(auth)/login")
+        }
       >
         {authUser ? (
           authUser.profileImage ? (
@@ -63,113 +85,202 @@ export default function HeaderMenu() {
           ) : (
             <View style={styles.avatarInitialContainer}>
               <Text style={styles.avatarInitialText}>
-                {authUser.name ? authUser.name[0]?.toUpperCase() : "U"}
+                {authUser.name?.charAt(0).toUpperCase() || "U"}
               </Text>
             </View>
           )
         ) : (
-          <Ionicons name="menu-outline" size={28} color="#ffffff" />
+          <Ionicons name="person-circle-outline" size={30} color="#ffffff" />
         )}
       </TouchableOpacity>
 
+      {/* Slide-out Side Drawer */}
       <Modal
-        visible={menuVisible}
+        visible={drawerVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => setMenuVisible(false)}
+        onRequestClose={() => setDrawerVisible(false)}
       >
-        <Pressable
-          style={[
-            styles.modalOverlay,
-            { paddingTop: insets.top + 60 + 8 },
-          ]}
-          onPress={() => setMenuVisible(false)}
-        >
-          <View style={styles.dropdownCard}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={styles.sectionHeader}>Pets</Text>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => handleNavigation("/(tabs)/Blogs/dog-care")}
-              >
-                <Ionicons name="paw-outline" size={18} color="#D86B35" />
-                <Text style={styles.menuItemText}>Dogs for Sale</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => handleNavigation("/(tabs)/home")}
-              >
-                <Ionicons name="paw-outline" size={18} color="#D86B35" />
-                <Text style={styles.menuItemText}>Cats for Sale</Text>
-              </TouchableOpacity>
+        <View style={styles.modalOverlay}>
+          {/* Backdrop */}
+          <Pressable
+            style={styles.backdrop}
+            onPress={() => setDrawerVisible(false)}
+          />
 
-              <View style={styles.divider} />
-
-              <Text style={styles.sectionHeader}>Breeds</Text>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => handleNavigation("/(tabs)/home")}
-              >
-                <Ionicons name="ribbon-outline" size={18} color="#D86B35" />
-                <Text style={styles.menuItemText}>Dog Breeds</Text>
+          {/* Drawer Content Surface */}
+          <View
+            style={[
+              styles.drawerContainer,
+              { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 },
+            ]}
+          >
+            <View style={styles.drawerHeader}>
+              <View style={styles.drawerBrand}>
+                <Image
+                  source={logoImage}
+                  style={styles.drawerLogo}
+                  resizeMode="contain"
+                />
+                <Text style={styles.drawerBrandText}>Menu</Text>
+              </View>
+              <TouchableOpacity onPress={() => setDrawerVisible(false)}>
+                <Ionicons name="close" size={26} color="#ffffff" />
               </TouchableOpacity>
+            </View>
+
+            <ScrollView
+              style={styles.scrollFlex}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.drawerScroll}
+            >
+              {/* SECTION 1: PETS */}
               <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => handleNavigation("/(tabs)/home")}
+                style={styles.accordionHeader}
+                onPress={() => setPetsExpanded(!petsExpanded)}
               >
-                <Ionicons name="ribbon-outline" size={18} color="#D86B35" />
-                <Text style={styles.menuItemText}>Cat Breeds</Text>
+                <View style={styles.accordionTitleRow}>
+                  <Ionicons name="paw-outline" size={22} color="#FFAC0D" />
+                  <Text style={styles.accordionTitle}>Pets</Text>
+                </View>
+                <Ionicons
+                  name={petsExpanded ? "chevron-up" : "chevron-down"}
+                  size={20}
+                  color="#FFAC0D"
+                />
               </TouchableOpacity>
-
-              <View style={styles.divider} />
-
-              <Text style={styles.sectionHeader}>Blog & Care</Text>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => handleNavigation("/(tabs)/Blogs/dog-care")}
-              >
-                <Ionicons name="newspaper-outline" size={18} color="#D86B35" />
-                <Text style={styles.menuItemText}>Dog Care</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={() => handleNavigation("/(tabs)/Blogs/cat-care")}
-              >
-                <Ionicons name="newspaper-outline" size={18} color="#D86B35" />
-                <Text style={styles.menuItemText}>Cat Care</Text>
-              </TouchableOpacity>
-
-              <View style={styles.divider} />
-
-              {authUser ? (
-                <>
+              {petsExpanded && (
+                <View style={styles.subItemContainer}>
                   <TouchableOpacity
-                    style={styles.menuItem}
-                    onPress={() => handleNavigation("/(tabs)/profile")}
+                    style={styles.subMenuItem}
+                    onPress={() =>
+                      handleNavigation({
+                        pathname: "/(dogs)/for-sale",
+                        params: { type: "dog" },
+                      })
+                    }
                   >
-                    <Ionicons name="person-outline" size={18} color="#D86B35" />
-                    <Text style={styles.menuItemText}>Dashboard</Text>
+                    <Text style={styles.subMenuItemText}>Dogs for Sale</Text>
                   </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.subMenuItem}
+                    onPress={() =>
+                      handleNavigation({
+                        pathname: "/(cats)/for-sale",
+                        params: { type: "cat" },
 
-                  <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-                    <Ionicons name="log-out-outline" size={18} color="#EF4444" />
-                    <Text style={[styles.menuItemText, styles.logoutText]}>
-                      Logout
-                    </Text>
+                      })
+                    }
+                  >
+                    <Text style={styles.subMenuItemText}>Cats for Sale</Text>
                   </TouchableOpacity>
-                </>
+                </View>
+              )}
+
+              <View style={styles.divider} />
+
+              {/* SECTION 2: BREEDS */}
+              <TouchableOpacity
+                style={styles.accordionHeader}
+                onPress={() => setBreedsExpanded(!breedsExpanded)}
+              >
+                <View style={styles.accordionTitleRow}>
+                  <Ionicons name="ribbon-outline" size={22} color="#FFAC0D" />
+                  <Text style={styles.accordionTitle}>Breeds</Text>
+                </View>
+                <Ionicons
+                  name={breedsExpanded ? "chevron-up" : "chevron-down"}
+                  size={20}
+                  color="#FFAC0D"
+                />
+              </TouchableOpacity>
+              {breedsExpanded && (
+                <View style={styles.subItemContainer}>
+                  <TouchableOpacity
+                    style={styles.subMenuItem}
+                    onPress={() => handleNavigation("/(tabs)/breed/dog-breed")}
+                  >
+                    <Text style={styles.subMenuItemText}>Dog Breeds</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.subMenuItem}
+                    onPress={() => handleNavigation("/(tabs)/breed/cat-breed")}
+                  >
+                    <Text style={styles.subMenuItemText}>Cat Breeds</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              <View style={styles.divider} />
+
+              {/* SECTION 3: BLOG */}
+              <TouchableOpacity
+                style={styles.accordionHeader}
+                onPress={() => setBlogExpanded(!blogExpanded)}
+              >
+                <View style={styles.accordionTitleRow}>
+                  <Ionicons name="newspaper-outline" size={22} color="#FFAC0D" />
+                  <Text style={styles.accordionTitle}>Blog Care</Text>
+                </View>
+                <Ionicons
+                  name={blogExpanded ? "chevron-up" : "chevron-down"}
+                  size={20}
+                  color="#FFAC0D"
+                />
+              </TouchableOpacity>
+              {blogExpanded && (
+                <View style={styles.subItemContainer}>
+                  <TouchableOpacity
+                    style={styles.subMenuItem}
+                    onPress={() => handleNavigation("/(tabs)/blog/dog-care")}
+                  >
+                    <Text style={styles.subMenuItemText}>Dog Care</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.subMenuItem}
+                    onPress={() => handleNavigation("/(tabs)/blog/cat-care")}
+                  >
+                    <Text style={styles.subMenuItemText}>Cat Care</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              <View style={styles.divider} />
+
+              {/* SECTION 4: DASHBOARD */}
+              <TouchableOpacity
+                style={styles.directMenuItem}
+                onPress={() => handleNavigation("/(dashboard)")}
+              >
+                <Ionicons name="grid-outline" size={22} color="#FFAC0D" />
+                <Text style={styles.directMenuText}>Dashboard</Text>
+              </TouchableOpacity>
+            </ScrollView>
+
+            {/* Bottom Pinned Footer */}
+            <View style={styles.drawerFooter}>
+              {authUser ? (
+                <TouchableOpacity
+                  style={styles.directMenuItem}
+                  onPress={handleLogout}
+                >
+                  <Ionicons name="log-out-outline" size={22} color="#EF4444" />
+                  <Text style={[styles.directMenuText, styles.logoutText]}>
+                    Logout
+                  </Text>
+                </TouchableOpacity>
               ) : (
                 <TouchableOpacity
-                  style={styles.menuItem}
+                  style={styles.directMenuItem}
                   onPress={() => handleNavigation("/(auth)/login")}
                 >
-                  <Ionicons name="log-in-outline" size={18} color="#D86B35" />
-                  <Text style={styles.menuItemText}>Login / Signup</Text>
+                  <Ionicons name="log-in-outline" size={22} color="#FFAC0D" />
+                  <Text style={styles.directMenuText}>Login / Signup</Text>
                 </TouchableOpacity>
               )}
-            </ScrollView>
+            </View>
           </View>
-        </Pressable>
+        </View>
       </Modal>
     </View>
   );
@@ -182,66 +293,134 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
+    zIndex: 10,
   },
-  logoRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  logo: { width: 32, height: 32 },
+  logoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  logo: { width: 30, height: 30 },
   brandTitle: { color: "#ffffff", fontSize: 18, fontWeight: "bold" },
-  menuButton: { padding: 2 },
-  avatarImage: {
+  headerButton: {
     width: 36,
     height: 36,
-    borderRadius: 18,
-    borderWidth: 2,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatarImage: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 1.5,
     borderColor: "#ffffff",
   },
   avatarInitialContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: "#FFAC0D",
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#ffffff",
   },
-  avatarInitialText: { color: "#ffffff", fontSize: 16, fontWeight: "bold" },
+  avatarInitialText: { color: "#ffffff", fontSize: 14, fontWeight: "bold" },
+
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    justifyContent: "flex-start",
-    alignItems: "flex-end",
-    paddingRight: 16,
+    flexDirection: "row",
   },
-  dropdownCard: {
-    width: 220,
-    maxHeight: 420,
-    backgroundColor: "#ffffff",
-    borderRadius: 16,
-    padding: 10,
-    elevation: 8,
+  backdrop: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  drawerContainer: {
+    width: DRAWER_WIDTH,
+    backgroundColor: "#191C33",
+    height: "100%",
+    paddingHorizontal: 16,
+    elevation: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    shadowOffset: { width: 2, height: 0 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    zIndex: 1,
   },
-  sectionHeader: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: "#9CA3AF",
-    paddingHorizontal: 8,
-    paddingTop: 6,
-    paddingBottom: 2,
-    textTransform: "uppercase",
+  drawerHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.15)",
   },
-  menuItem: {
+  drawerBrand: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-    borderRadius: 8,
+    gap: 12,
   },
-  menuItemText: { fontSize: 14, color: "#1F2937", fontWeight: "500" },
-  logoutText: { color: "#EF4444" },
-  divider: { height: 1, backgroundColor: "#E5E7EB", marginVertical: 4 },
+  drawerLogo: {
+    width: 66,
+    height: 66,
+    flexShrink: 0,
+  },
+  drawerBrandText: { fontSize: 18, fontWeight: "bold", color: "#FFAC0D" },
+  scrollFlex: {
+    flex: 1,
+  },
+  drawerScroll: {
+    paddingVertical: 12,
+  },
+  drawerFooter: {
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255, 255, 255, 0.15)",
+    paddingTop: 8,
+  },
+
+  accordionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 14,
+  },
+  accordionTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  accordionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#FFAC0D",
+  },
+  subItemContainer: {
+    paddingLeft: 34,
+    paddingVertical: 4,
+  },
+  subMenuItem: {
+    paddingVertical: 10,
+  },
+  subMenuItemText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#FFAC0D",
+  },
+  directMenuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingVertical: 14,
+  },
+  directMenuText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#FFAC0D",
+  },
+  logoutText: {
+    color: "#EF4444",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    marginVertical: 6,
+  },
 });

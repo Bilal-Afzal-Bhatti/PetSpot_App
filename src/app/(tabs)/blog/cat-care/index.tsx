@@ -1,19 +1,18 @@
-// app/(tabs)/blog/cat-care/index.tsx
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import CatsCareHeroSection from "@/components/Blogs/Cats-care/CatsCareHeroSection";
 import CatsCareMainSection from "@/components/Blogs/Cats-care/CatsCareMainSection";
 import PetsNavbar from "@/components/Blogs/Cats-care/PetsNavbar";
 import GuaranteeBadges from "@/components/Blogs/LastSection";
 
-export default function CatCareScreen() {
+export default function BlogIndexScreen() {
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <CatsCareHeroSection />
       <PetsNavbar />
       <CatsCareMainSection />
       <GuaranteeBadges />
-    </View>
+    </ScrollView>
   );
 }
 
@@ -23,3 +22,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
   },
 });
+
+

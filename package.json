@@ -9,6 +9,7 @@
     "@fortawesome/free-solid-svg-icons": "^7.3.1",
     "@fortawesome/react-native-fontawesome": "^1.0.0",
     "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-community/slider": "^5.2.1",
     "@react-native-picker/picker": "2.11.4",
     "@react-navigation/native": "^7.3.18",
     "@tanstack/react-query": "^5.102.8",
@@ -21,7 +22,7 @@
     "expo-font": "~57.0.3",
     "expo-glass-effect": "~57.0.2",
     "expo-image": "~57.0.4",
-    "expo-image-picker": "^57.0.16",
+    "expo-image-picker": "~57.0.16",
     "expo-linear-gradient": "~57.0.1",
     "expo-linking": "~57.0.9",
     "expo-router": "~57.0.20",
@@ -49,6 +50,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
+    "@types/react-native-vector-icons": "^6.4.18",
     "typescript": "~6.0.3"
   },
   "scripts": {

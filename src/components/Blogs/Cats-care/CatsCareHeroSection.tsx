@@ -18,30 +18,27 @@ export default function CatBreedInfoHeroSection() {
       resizeMode="cover"
       style={styles.section}
     >
-      {/* Content */}
-      <View style={styles.content}>
-        <View style={styles.breadcrumbRow}>
-          {/* Clickable Home */}
-          <Link href="/" style={styles.homeLink}>
-            Home
-          </Link>
-          <Text style={styles.breadcrumbText}> / </Text>
-          {/* Clickable Cat Breeds */}
-          <Link href={"/cat-breed" as Href} style={styles.homeLink}>
-            Cat Breeds
-          </Link>
-          <Text style={styles.breadcrumbText}> / {breedName}</Text>
-        </View>
+     <View style={styles.content}>
+            <Text style={styles.title}>Cat Care</Text>
+    
+            <View style={styles.breadcrumbRow}>
+              {/* Clickable Home */}
+              <Link href="/home" style={styles.homeLink}>
+                Home
+              </Link>
+              <Text style={styles.breadcrumbText}> / Blog / Cat Care</Text>
+            </View>
+          </View>
 
-        <Text style={styles.title}>{breedName || "Cat Breed"} Cat Breed</Text>
-      </View>
+       
+      
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   section: {
-    height: 260,
+    height: 200,
     width: "100%",
     justifyContent: "center",
     alignItems: "center",

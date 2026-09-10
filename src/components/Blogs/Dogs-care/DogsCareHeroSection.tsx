@@ -1,10 +1,12 @@
 import React from "react";
 import { View, Text, ImageBackground, StyleSheet } from "react-native";
 import { Link } from "expo-router";
+import { ScrollView } from "react-native-gesture-handler";
 const dogsHeroImage = require("../../../../assets/Blog/blog.webp");
 
 export default function DogsCareHeroSection() {
   return (
+    <ScrollView>
     <ImageBackground
       source={dogsHeroImage}
       resizeMode="cover"
@@ -19,19 +21,20 @@ export default function DogsCareHeroSection() {
 
         <View style={styles.breadcrumbRow}>
           {/* Clickable Home */}
-          <Link href="/" style={styles.homeLink}>
+          <Link href="/home" style={styles.homeLink}>
             Home
           </Link>
           <Text style={styles.breadcrumbText}> / Blog / Dog Care</Text>
         </View>
       </View>
     </ImageBackground>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   section: {
-    height: 260,
+    height: 200,
     width: "100%",
     justifyContent: "center",
     alignItems: "center",

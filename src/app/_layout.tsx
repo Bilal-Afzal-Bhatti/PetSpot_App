@@ -1,6 +1,6 @@
+// ✅ src/app/_layout.tsx
 import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { StyleSheet } from "react-native";
 
 export default function RootLayout() {
   return (
@@ -15,15 +15,16 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="pets_view/[slug]" options={{ headerShown: false }} />
-        <Stack.Screen name="checkout/[id]" options={{ headerShown: false }} />
-        <Stack.Screen name="orders/success" options={{ headerShown: false }} />
+        <Stack.Screen name="(dashboard)" />
+        <Stack.Screen name="(dogs)/for-sale/index" />
+        <Stack.Screen name="(dogs)/[id]/index" />
+        <Stack.Screen name="(dogs)/[...segments]/index" />
+        <Stack.Screen name="(cats)/for-sale/index" />
+        <Stack.Screen name="(cats)/[id]/index" />
+        <Stack.Screen name="pets_view/[slug]" />
+        <Stack.Screen name="checkout/[id]" />
+        <Stack.Screen name="orders/success" />
       </Stack>
     </GestureHandlerRootView>
   );
 }
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});

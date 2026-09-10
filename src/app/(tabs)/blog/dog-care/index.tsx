@@ -1,6 +1,6 @@
 // app/(tabs)/blog/dog-care/index.tsx
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 import PetsNavbar from "../../../../components/Blogs/Cats-care/PetsNavbar";
 import DogsCareMainSection from "../../../../components/Blogs/Dogs-care/DogsCareMainSection";
 import DogsCareHeroSection from "../../../../components/Blogs/Dogs-care/DogsCareHeroSection";
@@ -8,12 +8,14 @@ import GuaranteeBadges from "../../../../components/Blogs/LastSection";
 
 export default function DogCareScreen() {
   return (
-    <View style={styles.container}>
+  <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>      
       <DogsCareHeroSection />
       <PetsNavbar />
       <DogsCareMainSection />
       <GuaranteeBadges />
-    </View>
+
+    
+    </ScrollView>
   );
 }
 
@@ -23,3 +25,4 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
   },
 });
+

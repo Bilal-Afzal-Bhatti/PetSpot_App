@@ -1,5 +1,5 @@
 import CatBreedListing from '@/components/breeds/CatBreed/CatBreedListing';
-import DogBreedHeroSection from '@/components/breeds/DogBreed/DogBreedHeroSection';
+//import DogBreedHeroSection from '@/components/breeds/DogBreed/DogBreedHeroSection';
 import { ScrollView, StyleSheet } from 'react-native';
 
 export default function catBreed() {
@@ -9,7 +9,7 @@ export default function catBreed() {
       contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
     >
-      <DogBreedHeroSection />
+     {/* <DogBreedHeroSection /> */}
       <CatBreedListing />
     </ScrollView>
   );

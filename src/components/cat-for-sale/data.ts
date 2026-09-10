@@ -1,0 +1,228 @@
+// catsData.ts
+
+export const cats = [
+  {
+    id: 1,
+    name: "Misty",
+    img: "https://images.unsplash.com/photo-1574158622682-e40e69881006",
+    breed: "Persian",
+    gender: "Female",
+    age: "8 Weeks",
+    city: "Lahore",
+    price: 30000,
+  },
+  {
+    id: 2,
+    name: "Simba",
+    img: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131",
+    breed: "Maine Coon",
+    gender: "Male",
+    age: "9 Weeks",
+    city: "Karachi",
+    price: 35000,
+  },
+  {
+    id: 3,
+    name: "Luna",
+    img: "https://images.unsplash.com/photo-1592194996308-7b43878e84a6",
+    breed: "Siamese",
+    gender: "Female",
+    age: "7 Weeks",
+    city: "Islamabad",
+    price: 28000,
+  },
+  {
+    id: 4,
+    name: "Leo",
+    img: "https://images.unsplash.com/photo-1555685812-4b943f1cb0eb",
+    breed: "Bengal",
+    gender: "Male",
+    age: "10 Weeks",
+    city: "Rawalpindi",
+    price: 40000,
+  },
+  {
+    id: 5,
+    name: "Cleo",
+    img: "https://images.unsplash.com/photo-1573865526739-10659fec78a5",
+    breed: "Ragdoll",
+    gender: "Female",
+    age: "9 Weeks",
+    city: "Faisalabad",
+    price: 42000,
+  },
+  {
+    id: 6,
+    name: "Oscar",
+    img: "https://images.unsplash.com/photo-1559235038-1e94a4e09630",
+    breed: "British Shorthair",
+    gender: "Male",
+    age: "11 Weeks",
+    city: "Multan",
+    price: 37000,
+  },
+  {
+    id: 7,
+    name: "Nala",
+    img: "https://images.unsplash.com/photo-1573865526739-10659fec78a5",
+    breed: "Abyssinian",
+    gender: "Female",
+    age: "8 Weeks",
+    city: "Peshawar",
+    price: 32000,
+  },
+  {
+    id: 8,
+    name: "Max",
+    img: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee",
+    breed: "Sphynx",
+    gender: "Male",
+    age: "12 Weeks",
+    city: "Quetta",
+    price: 45000,
+  },
+  {
+    id: 9,
+    name: "Bella",
+    img: "https://images.unsplash.com/photo-1595433707802-6b2626ef9f6b",
+    breed: "Scottish Fold",
+    gender: "Female",
+    age: "7 Weeks",
+    city: "Sialkot",
+    price: 34000,
+  },
+  {
+    id: 10,
+    name: "Charlie",
+    img: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee",
+    breed: "Russian Blue",
+    gender: "Male",
+    age: "10 Weeks",
+    city: "Gujranwala",
+    price: 36000,
+  },
+
+  // ————————————————————————————————————————————————
+  // Randomized Pakistani cities generator (90 more entries)
+  ...Array.from({ length: 90 }, (_, i) => {
+    const breeds = [
+      "Persian",
+      "Siamese",
+      "Maine Coon",
+      "Ragdoll",
+      "British Shorthair",
+      "Bengal",
+      "Abyssinian",
+      "Sphynx",
+      "Scottish Fold",
+      "Russian Blue",
+    ];
+    const cities = [
+      "Lahore",
+      "Karachi",
+      "Islamabad",
+      "Rawalpindi",
+      "Faisalabad",
+      "Multan",
+      "Peshawar",
+      "Quetta",
+      "Sialkot",
+      "Gujranwala",
+      "Hyderabad",
+      "Bahawalpur",
+      "Sargodha",
+      "Abbottabad",
+      "Sukkur",
+      "Mardan",
+      "Muzaffarabad",
+      "Mirpur",
+      "Gilgit",
+      "Fazaia",
+    ];
+    const names = [
+      "Misty",
+      "Luna",
+      "Simba",
+      "Cleo",
+      "Leo",
+      "Nala",
+      "Bella",
+      "Max",
+      "Coco",
+      "Oliver",
+      "Milo",
+      "Chloe",
+      "Sophie",
+      "Lucy",
+      "Daisy",
+      "Oscar",
+      "Shadow",
+      "Teddy",
+      "Willow",
+      "Zoe",
+    ];
+    const randomBreed = breeds[Math.floor(Math.random() * breeds.length)];
+    const randomCity = cities[Math.floor(Math.random() * cities.length)];
+    const randomName = names[Math.floor(Math.random() * names.length)];
+    const gender = Math.random() > 0.5 ? "Male" : "Female";
+    const age = `${Math.floor(Math.random() * 7) + 6} Weeks`;
+    const price = Math.floor(Math.random() * 20000) + 28000;
+    const imgUrls = [
+      "https://images.unsplash.com/photo-1574158622682-e40e69881006",
+      "https://images.unsplash.com/photo-1518791841217-8f162f1e1131",
+      "https://images.unsplash.com/photo-1592194996308-7b43878e84a6",
+      "https://images.unsplash.com/photo-1555685812-4b943f1cb0eb",
+      "https://images.unsplash.com/photo-1573865526739-10659fec78a5",
+      "https://images.unsplash.com/photo-1559235038-1e94a4e09630",
+      "https://images.unsplash.com/photo-1583337130417-3346a1be7dee",
+      "https://images.unsplash.com/photo-1595433707802-6b2626ef9f6b",
+      "https://images.unsplash.com/photo-1558944351-c3b6a2e728e1",
+      "https://images.unsplash.com/photo-1561948955-570b270e7c36",
+    ];
+    const img = imgUrls[Math.floor(Math.random() * imgUrls.length)];
+    return {
+      id: i + 11,
+      name: randomName,
+      img,
+      breed: randomBreed,
+      gender,
+      age,
+      city: randomCity,
+      price,
+    };
+  }),
+];
+
+export const popularCatBreeds = [
+  "Persian",
+  "Maine Coon",
+  "Siamese",
+  "Bengal",
+  "Ragdoll",
+  "British Shorthair",
+  "Scottish Fold",
+  "Sphynx",
+];
+
+export const catBreeds = [
+  "Persian",
+  "Siamese",
+  "Bengal",
+  "Ragdoll",
+  "Maine Coon",
+  "British Shorthair",
+  "Abyssinian",
+  "Sphynx",
+  "Scottish Fold",
+  "Russian Blue",
+];
+
+export const statesWithCatCities: Record<string, string[]> = {
+  Punjab: ["Lahore", "Faisalabad", "Rawalpindi", "Multan", "Sialkot", "Gujranwala", "Bahawalpur", "Sargodha"],
+  Sindh: ["Karachi", "Hyderabad", "Sukkur"],
+  "Khyber Pakhtunkhwa": ["Peshawar", "Abbottabad", "Mardan"],
+  Balochistan: ["Quetta"],
+  "Islamabad Capital Territory": ["Islamabad"],
+  "Azad Jammu & Kashmir": ["Muzaffarabad", "Mirpur"],
+  Gilgit_Baltistan: ["Gilgit"],
+};

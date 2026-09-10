@@ -20,7 +20,7 @@ export default function BreedInfoPageHeroSection() {
           </Link>
           <Text style={styles.breadcrumbText}> / </Text>
           <Link href={"/dog-breed" as any} style={styles.breadcrumbLink}>
-            Dog Breeds
+            Dog Breedssss
           </Link>
           <Text style={styles.breadcrumbText}> / </Text>
           <Text style={[styles.breadcrumbText, styles.capitalize]}>
@@ -29,7 +29,7 @@ export default function BreedInfoPageHeroSection() {
         </View>
 
         <Text style={styles.title}>
-          {(breedName || "Dog Breed") + " Dog Breed"}
+          {(breedName || "Dog Breeds") + " Dog Breed"}
         </Text>
       </View>
     </View>

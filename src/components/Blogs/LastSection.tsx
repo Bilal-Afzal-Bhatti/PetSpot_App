@@ -1,9 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
+import { ScrollView } from "react-native-gesture-handler";
 
 export default function GuaranteeBadges() {
   return (
+    <ScrollView>
     <View style={styles.wrapper}>
       <View style={styles.row}>
         {/* Best Price Guarantee */}
@@ -45,6 +47,7 @@ export default function GuaranteeBadges() {
         </View>
       </View>
     </View>
+    </ScrollView>
   );
 }
 

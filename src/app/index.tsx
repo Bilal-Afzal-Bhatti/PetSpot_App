@@ -6,7 +6,6 @@ import {
   ActivityIndicator,
   StyleSheet,
   ImageBackground,
-  useWindowDimensions,
   StatusBar,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,61 +18,64 @@ const petLogoImage = require("../../assets/app_images/petLogo.png");
 
 export default function Index() {
   const router = useRouter();
-  const { width, height } = useWindowDimensions();
   const token = useAuthStore((state) => state.token);
   const isHydrated = useAuthStore((state) => state.isHydrated);
 
   useEffect(() => {
     if (!isHydrated) return;
 
+    // Adjusted timer for standard splash transition (2 seconds)
     const timer = setTimeout(() => {
       if (token) {
         router.replace("/(tabs)/home");
       } else {
         router.replace("/(auth)/login");
       }
-    }, 4000);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [isHydrated, token]);
 
   return (
-    <ImageBackground
-      source={splashBgImage}
-      style={[styles.backgroundImage, { width, height }]}
-      resizeMode="cover"
-    >
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
-      <View style={styles.overlay}>
-        <SafeAreaView style={styles.safeArea}>
-          <View style={styles.contentContainer}>
-            {/* Logo & Branding Section */}
-            <View style={[styles.brandContainer, { marginTop: height * 0.1 }]}>
-              <Image
-                source={petLogoImage}
-                style={styles.logo}
-                resizeMode="contain"
-              />
-              <Text style={styles.title}>myPetshop</Text>
-              <Text style={styles.subtitle}>
-                Welcome to your favorite pet care hub
-              </Text>
-            </View>
+    <View style={styles.container}>
+      <ImageBackground
+        source={splashBgImage}
+        style={StyleSheet.absoluteFill}
+        resizeMode="cover"
+      >
+        <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+        <View style={styles.overlay}>
+          <SafeAreaView style={styles.safeArea}>
+            <View style={styles.contentContainer}>
+              {/* Logo & Branding Section */}
+              <View style={styles.brandContainer}>
+                <Image
+                  source={petLogoImage}
+                  style={styles.logo}
+                  resizeMode="contain"
+                />
+                <Text style={styles.title}>myPetshop</Text>
+                <Text style={styles.subtitle}>
+                  Welcome to your favorite pet care hub
+                </Text>
+              </View>
 
-            {/* Bottom Loader */}
-            <View style={styles.loaderContainer}>
-              <ActivityIndicator size="large" color="#ffffff" />
+              {/* Bottom Loader */}
+              <View style={styles.loaderContainer}>
+                <ActivityIndicator size="large" color="#ffffff" />
+              </View>
             </View>
-          </View>
-        </SafeAreaView>
-      </View>
-    </ImageBackground>
+          </SafeAreaView>
+        </View>
+      </ImageBackground>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  backgroundImage: {
+  container: {
     flex: 1,
+    backgroundColor: "#000000",
   },
   overlay: {
     flex: 1,
@@ -86,11 +88,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 60,
+    paddingVertical: 40,
     paddingHorizontal: 24,
   },
   brandContainer: {
     alignItems: "center",
+    marginTop: "20%",
   },
   logo: {
     width: 120,

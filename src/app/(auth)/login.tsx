@@ -20,6 +20,7 @@ import { useAuthStore } from "@/../Store/authStore";
 
 const { width } = Dimensions.get("window");
 const login_image = require("@/../assets/app_images/login_image.png");
+
 export default function LoginScreen() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"password" | "otp">("password");
@@ -100,22 +101,25 @@ export default function LoginScreen() {
           contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
         >
+          {/* Back Button Outside and Above Card */}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.replace("/(tabs)/home")}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="arrow-back" size={18} color="#2d5a43" />
+            <Text style={styles.backButtonText}>Back to Home</Text>
+          </TouchableOpacity>
+
           {/* Main Card Container */}
           <View style={styles.card}>
-            {/* Top Banner Image with Floating Back Button */}
+            {/* Top Banner Image Container */}
             <View style={styles.imageContainer}>
               <Image
                 source={login_image}
                 style={styles.bannerImage}
                 resizeMode="cover"
               />
-              <TouchableOpacity
-                style={styles.backButton}
-                onPress={() => router.replace("/(tabs)/home")}
-              >
-                <Ionicons name="arrow-back" size={18} color="#2d5a43" />
-                <Text style={styles.backButtonText}>Back to Home</Text>
-              </TouchableOpacity>
             </View>
 
             {/* Form Content */}
@@ -263,6 +267,22 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     justifyContent: "center",
   },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    gap: 4,
+    marginBottom: 12,
+  },
+  backButtonText: {
+    color: "#2d5a43",
+    fontWeight: "600",
+    fontSize: 13,
+  },
   card: {
     backgroundColor: "#f8f7f2",
     borderRadius: 28,
@@ -274,7 +294,6 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   imageContainer: {
-    position: "relative",
     width: "100%",
     height: 220,
   },
@@ -283,23 +302,6 @@ const styles = StyleSheet.create({
     height: "100%",
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-  },
-  backButton: {
-    position: "absolute",
-    top: 16,
-    left: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.85)",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    gap: 4,
-  },
-  backButtonText: {
-    color: "#2d5a43",
-    fontWeight: "600",
-    fontSize: 13,
   },
   contentSection: {
     paddingHorizontal: 24,
