@@ -1,9 +1,10 @@
 import React from "react";
 import { ScrollView, StyleSheet } from "react-native";
+import HeaderMenu from "@/components/HeaderMenu"; // Adjust path if your header component is located elsewhere
 import AvailablePets from "@/components/cat-for-sale/AvailablePetsNearMe";
 import PetListingPage from "@/components/cat-for-sale/catsListingPage";
 import PopularCatSearches from "@/components/cat-for-sale/PopularCatSearches";
-import ThingsToConsider from "@/components/cat-for-sale/ThingsToConsider";
+
 import WinningFormula from "@/components/cat-for-sale/WinningFormula";
 import BlogSection from "@/components/dogs-for-sale/BlogSection";
 import HeroSection from "@/components/dogs-for-sale/HeroSection";
@@ -15,11 +16,12 @@ export default function DogsForSalePage() {
       contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
     >
+      <HeaderMenu />
       {/* <Navbar /> */}
       <HeroSection />
       <PetListingPage />
       {/* <NotFoundPets /> */}
-      <ThingsToConsider />
+   
       <AvailablePets />
       <WinningFormula />
       {/* <AreYouResponsible /> */}

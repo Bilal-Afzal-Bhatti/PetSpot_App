@@ -1,12 +1,12 @@
 import React from "react";
 import { ScrollView, StyleSheet } from "react-native";
-import AvailablePets from "@/components/dogs-for-sale/AvailablePetsNearMe";
-import PetListingPage from "@/components/dogs-for-sale/dogsListingPage";
-import PopularCatSearches from "@/components/dogs-for-sale/PopularDogSearches";
-import ThingsToConsider from "@/components/dogs-for-sale/ThingsToConsider";
-import WinningFormula from "@/components/dogs-for-sale/WinningFormula";
-import BlogSection from "@/components/dogs-for-sale/BlogSection";
+import HeaderMenu from "@/components/HeaderMenu";
 import HeroSection from "@/components/dogs-for-sale/HeroSection";
+import DogsScreen from "@/components/dogs-for-sale/dogsListingPage";
+import AvailablePets from "@/components/dogs-for-sale/AvailablePetsNearMe";
+import WinningFormula from "@/components/dogs-for-sale/WinningFormula";
+import PopularDogSearches from "@/components/dogs-for-sale/PopularDogSearches";
+import BlogSection from "@/components/dogs-for-sale/BlogSection";
 
 export default function DogsForSalePage() {
   return (
@@ -14,20 +14,15 @@ export default function DogsForSalePage() {
       style={styles.container} 
       contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
+      nestedScrollEnabled
     >
-      {/* <Navbar /> */}
+      <HeaderMenu />
       <HeroSection />
-      <PetListingPage />
-      {/* <NotFoundPets /> */}
-      <ThingsToConsider />
+      <DogsScreen scrollEnabled={false} />
       <AvailablePets />
       <WinningFormula />
-      {/* <AreYouResponsible /> */}
-      <PopularCatSearches />
-      {/* <Feedback /> */}
-      {/* <FAQSection /> */}
+      <PopularDogSearches />
       <BlogSection />
-      {/* <Footer /> */}
     </ScrollView>
   );
 }

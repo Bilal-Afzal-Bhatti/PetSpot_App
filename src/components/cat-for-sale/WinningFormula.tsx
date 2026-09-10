@@ -20,23 +20,7 @@ export default function WinningFormula() {
     },
   ];
 
-  const stepsRight = [
-    {
-      id: 4,
-      title: "Travel Planning",
-      desc: "We plan your pet’s journey considering health, climate, weather, and other factors.",
-    },
-    {
-      id: 5,
-      title: "Live Journey Updates",
-      desc: "Receive feeding videos and real-time updates as your furbaby travels to you.",
-    },
-    {
-      id: 6,
-      title: "Post-Arrival Support",
-      desc: "Once your pet arrives, we offer complete guidance to support your parenting journey.",
-    },
-  ];
+
 
   return (
     <ScrollView contentContainerStyle={styles.section}>
@@ -71,21 +55,6 @@ export default function WinningFormula() {
             source={require("../../../assets/combodog.svg")} // Update to your local file asset path (.svg or .png)
             style={styles.image}
           />
-        </View>
-
-        {/* Right Side Steps */}
-        <View style={styles.stepColumn}>
-          {stepsRight.map((item) => (
-            <View key={item.id} style={styles.card}>
-              <View style={styles.badgeRight}>
-                <Text style={styles.badgeTextRight}>{item.id}</Text>
-              </View>
-              <View style={styles.textWrapper}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <Text style={styles.cardDesc}>{item.desc}</Text>
-              </View>
-            </View>
-          ))}
         </View>
       </View>
     </ScrollView>

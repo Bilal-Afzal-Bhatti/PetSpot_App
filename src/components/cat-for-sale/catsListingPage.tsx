@@ -536,6 +536,35 @@ const styles = StyleSheet.create({
   },
   inputText: { fontSize: 14 },
 
+  // Progress bar / Slider styles
+  slider: {
+    width: "100%",
+    height: 40,
+  },
+  sliderTrack: {
+    height: 6,
+    backgroundColor: "#E5E7EB",
+    borderRadius: 3,
+  },
+  sliderProgress: {
+    height: 6,
+    backgroundColor: "#FFAC0D",
+    borderRadius: 3,
+  },
+  sliderThumb: {
+    width: 20,
+    height: 20,
+    backgroundColor: "#FFAC0D",
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+
   sliderEndLabel: { fontSize: 12, color: "#6B7280", fontWeight: "600" },
   budgetValueText: { fontSize: 13, color: "#374151", marginTop: 4 },
 
@@ -552,21 +581,21 @@ const styles = StyleSheet.create({
   filterButtonsRow: { flexDirection: "row", gap: 10, marginTop: 18 },
   applyBtn: {
     flex: 1,
-    backgroundColor: PRIMARY,
+    backgroundColor: "#FFAC0D",
     borderRadius: 8,
     paddingVertical: 12,
     alignItems: "center",
   },
-  applyBtnText: { color: "#fff", fontWeight: "700" },
+  applyBtnText: { color: "#1f2937", fontWeight: "700" },
   clearBtn: {
     flex: 1,
     borderWidth: 1,
-    borderColor: PRIMARY,
+    borderColor: "#FFAC0D",
     borderRadius: 8,
     paddingVertical: 12,
     alignItems: "center",
   },
-  clearBtnText: { color: PRIMARY, fontWeight: "700" },
+  clearBtnText: { color: "#FFAC0D", fontWeight: "700" },
 
   // Cat card
   card: {
@@ -605,12 +634,12 @@ const styles = StyleSheet.create({
   actionBtnText: { fontSize: 11, fontWeight: "600", color: "#16a34a" },
 
   priceBtn: {
-    backgroundColor: PRIMARY,
+    backgroundColor: "#FFAC0D",
     borderRadius: 8,
     paddingVertical: 10,
     alignItems: "center",
   },
-  priceBtnText: { color: "#fff", fontWeight: "700", fontSize: 13 },
+  priceBtnText: { color: "#1f2937", fontWeight: "700", fontSize: 13 },
 
   emptyTitle: { fontSize: 18, fontWeight: "700", color: "#1f2937" },
   emptySubtitle: { fontSize: 13, color: "#6B7280", marginTop: 4 },
@@ -624,13 +653,13 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
   },
   pageBtn: {
-    backgroundColor: PRIMARY,
+    backgroundColor: "#FFAC0D",
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 20,
   },
   pageBtnDisabled: { backgroundColor: "#D1D5DB" },
-  pageBtnText: { color: "#fff", fontWeight: "600", fontSize: 13 },
+  pageBtnText: { color: "#1f2937", fontWeight: "600", fontSize: 13 },
   pageIndicator: { fontSize: 13, fontWeight: "600", color: "#374151" },
 
   // City modal
@@ -663,7 +692,7 @@ const styles = StyleSheet.create({
   modalItemText: { fontSize: 14, color: "#1f2937" },
   modalCloseBtn: {
     marginTop: 12,
-    backgroundColor: PRIMARY_HOVER,
+    backgroundColor: "#FFAC0D",
     borderRadius: 8,
     paddingVertical: 10,
     alignItems: "center",

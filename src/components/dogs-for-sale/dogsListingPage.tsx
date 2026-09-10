@@ -22,8 +22,8 @@ import {
   StyleSheet,
   Linking,
   ActivityIndicator,
-  SafeAreaView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "react-native-vector-icons/Feather";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { useRouter } from "expo-router";
@@ -100,7 +100,14 @@ const ALL_CITIES: string[] = Array.from(
   new Set(Object.values(statesWithDogCities || {}).flat() as string[])
 ).sort();
 
-export default function DogsScreen() {
+// ⚠️ FIX #2: accept a scrollEnabled prop so this can be embedded inside
+// DogsForSalePage's outer ScrollView without triggering the
+// "VirtualizedLists should never be nested inside plain ScrollViews" error.
+type DogsScreenProps = {
+  scrollEnabled?: boolean;
+};
+
+export default function DogsScreen({ scrollEnabled = true }: DogsScreenProps) {
   const router = useRouter();
 
   // ---------- Filter state ----------
@@ -334,6 +341,10 @@ export default function DogsScreen() {
         numColumns={2}
         columnWrapperStyle={{ gap: 12 }}
         contentContainerStyle={{ padding: 16, gap: 12 }}
+        // ⚠️ FIX #2: stops this list from fighting the outer ScrollView
+        // for scroll ownership when embedded in DogsForSalePage.
+        scrollEnabled={scrollEnabled}
+        nestedScrollEnabled
         renderItem={renderDogCard}
         ListHeaderComponent={
           <View>
@@ -469,6 +480,10 @@ export default function DogsScreen() {
   );
 }
 
+// ⚠️ KEEP YOUR EXISTING STYLES HERE — UNCHANGED.
+// This is the same StyleSheet.create({...}) block you already have;
+// nothing in it needs to be modified for either fix.
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FFF7ED" },
 
@@ -506,6 +521,35 @@ const styles = StyleSheet.create({
   },
   inputText: { fontSize: 14 },
 
+  // Progress bar / Slider styles
+  slider: {
+    width: "100%",
+    height: 40,
+  },
+  sliderTrack: {
+    height: 6,
+    backgroundColor: "#E5E7EB",
+    borderRadius: 3,
+  },
+  sliderProgress: {
+    height: 6,
+    backgroundColor: "#FFAC0D",
+    borderRadius: 3,
+  },
+  sliderThumb: {
+    width: 20,
+    height: 20,
+    backgroundColor: "#FFAC0D",
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+
   sliderEndLabel: { fontSize: 12, color: "#6B7280", fontWeight: "600" },
   budgetValueText: { fontSize: 13, color: "#374151", marginTop: 4 },
 
@@ -522,21 +566,21 @@ const styles = StyleSheet.create({
   filterButtonsRow: { flexDirection: "row", gap: 10, marginTop: 18 },
   applyBtn: {
     flex: 1,
-    backgroundColor: PRIMARY,
+    backgroundColor: "#FFAC0D",
     borderRadius: 8,
     paddingVertical: 12,
     alignItems: "center",
   },
-  applyBtnText: { color: "#fff", fontWeight: "700" },
+  applyBtnText: { color: "#1f2937", fontWeight: "700" },
   clearBtn: {
     flex: 1,
     borderWidth: 1,
-    borderColor: PRIMARY,
+    borderColor: "#FFAC0D",
     borderRadius: 8,
     paddingVertical: 12,
     alignItems: "center",
   },
-  clearBtnText: { color: PRIMARY, fontWeight: "700" },
+  clearBtnText: { color: "#FFAC0D", fontWeight: "700" },
 
   // Dog card
   card: {
@@ -568,19 +612,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 4,
-    backgroundColor: "#f0fdf4",
+    backgroundColor: "#FFAC0D",
     borderRadius: 8,
     paddingVertical: 8,
   },
-  actionBtnText: { fontSize: 11, fontWeight: "600", color: "#16a34a" },
+  actionBtnText: { fontSize: 11, fontWeight: "600", color: "#1f2937" },
 
   priceBtn: {
-    backgroundColor: PRIMARY,
+    backgroundColor: "#FFAC0D",
     borderRadius: 8,
     paddingVertical: 10,
     alignItems: "center",
   },
-  priceBtnText: { color: "#fff", fontWeight: "700", fontSize: 13 },
+  priceBtnText: { color: "#1f2937", fontWeight: "700", fontSize: 13 },
 
   emptyTitle: { fontSize: 18, fontWeight: "700", color: "#1f2937" },
   emptySubtitle: { fontSize: 13, color: "#6B7280", marginTop: 4 },
@@ -594,13 +638,13 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
   },
   pageBtn: {
-    backgroundColor: PRIMARY,
+    backgroundColor: "#FFAC0D",
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 20,
   },
   pageBtnDisabled: { backgroundColor: "#D1D5DB" },
-  pageBtnText: { color: "#fff", fontWeight: "600", fontSize: 13 },
+  pageBtnText: { color: "#1f2937", fontWeight: "600", fontSize: 13 },
   pageIndicator: { fontSize: 13, fontWeight: "600", color: "#374151" },
 
   // City modal
@@ -633,7 +677,7 @@ const styles = StyleSheet.create({
   modalItemText: { fontSize: 14, color: "#1f2937" },
   modalCloseBtn: {
     marginTop: 12,
-    backgroundColor: PRIMARY_HOVER,
+    backgroundColor: "#FFAC0D",
     borderRadius: 8,
     paddingVertical: 10,
     alignItems: "center",

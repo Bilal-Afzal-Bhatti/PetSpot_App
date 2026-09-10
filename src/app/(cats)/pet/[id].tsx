@@ -20,7 +20,8 @@ import {
 import { useAdStore } from "@/../Store/AdsStore";
 import { useBuyStore } from "@/../Store/buyStore";
 import { api } from "@/../lib/axios";
-
+import HeaderMenu from "@/components/HeaderMenu";
+import { SafeAreaView } from "react-native-safe-area-context";
 const AUTO_SLIDE_INTERVAL_MS = 4000;
 const Base_URL = api.defaults.baseURL;
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -182,31 +183,14 @@ export default function CatDetailScreen() {
   }
 
   return (
+    <SafeAreaView style={styles.safeArea}
+  >
+      <HeaderMenu/>
+  
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+   
       
-      {/* Header Navigation Menu */}
-      <View style={styles.headerNavMenu}>
-        <TouchableOpacity 
-          style={styles.headerButton} 
-          onPress={() => router.back()}
-          activeOpacity={0.7}
-        >
-          <Feather name="arrow-left" size={20} color="#ffffff" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
-          {pet.name ? `${pet.name} Details` : "Cat Details"}
-        </Text>
-        <TouchableOpacity 
-          style={styles.headerButton} 
-          onPress={() => router.push("/")}
-          activeOpacity={0.7}
-        >
-          <Feather name="home" size={18} color="#ffffff" />
-        </TouchableOpacity>
-      </View>
 
-      {/* Hero Banner Space */}
-      <View style={styles.heroBanner} />
 
       <View style={styles.innerWrapper}>
         {/* Breadcrumb */}
@@ -385,10 +369,15 @@ export default function CatDetailScreen() {
         </TouchableOpacity>
       </View>
     </ScrollView>
+      </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+   safeArea: {
+    flex: 1,
+    width: "100%",
+  },
   container: { flex: 1, backgroundColor: "#f9fafb" },
   contentContainer: { paddingBottom: 40 },
   centerContainer: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: "#f9fafb" },
@@ -443,9 +432,9 @@ const styles = StyleSheet.create({
   subMetaRow: { flexDirection: "row", alignItems: "center", gap: 16, marginBottom: 10 },
   metaItem: { flexDirection: "row", alignItems: "center", gap: 6 },
   metaText: { fontSize: 14, color: "#4b5563" },
-  priceText: { fontSize: 24, fontWeight: "bold", color: "#ea580c" },
+  priceText: { fontSize: 24, fontWeight: "bold", color: "#191C33" },
   actionButtonsRow: { flexDirection: "row", gap: 12, marginBottom: 20 },
-  actionButtonPrimary: { flex: 1, backgroundColor: "#ea580c", paddingVertical: 12, borderRadius: 12, flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 8, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, elevation: 2 },
+  actionButtonPrimary: { flex: 1, backgroundColor: "#FFAC0D", paddingVertical: 12, borderRadius: 12, flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 8, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, elevation: 2 },
   actionButtonText: { color: "#fff", fontWeight: "600", fontSize: 14 },
   card: { backgroundColor: "#fff", borderRadius: 12, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: "#f3f4f6", shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, elevation: 1 },
   cardTitle: { fontSize: 16, fontWeight: "600", color: "#1f2937", marginBottom: 12 },
@@ -460,6 +449,6 @@ const styles = StyleSheet.create({
   badgeText: { fontSize: 12, fontWeight: "500" },
   valueText: { fontSize: 14, fontWeight: "500", color: "#1f2937" },
   descriptionText: { fontSize: 14, color: "#4b5563", lineHeight: 20 },
-  buyNowButton: { backgroundColor: "#ea580c", paddingVertical: 16, borderRadius: 12, alignItems: "center", marginTop: 8, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, elevation: 3 },
+  buyNowButton: { backgroundColor: "#FFAC0D", paddingVertical: 16, borderRadius: 12, alignItems: "center", marginTop: 8, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, elevation: 3 },
   buyNowButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
 });

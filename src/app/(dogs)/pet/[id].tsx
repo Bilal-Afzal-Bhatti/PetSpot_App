@@ -5,6 +5,7 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  SafeAreaView,
   StyleSheet,
   Dimensions,
   ActivityIndicator,
@@ -16,7 +17,7 @@ import { Ionicons, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-ico
 import { useAdStore } from "@/../Store/AdsStore";
 import { useBuyStore } from "@/../Store/buyStore";
 import { api } from "@/../lib/axios";
-
+import HeaderMenu from "@/components/HeaderMenu";
 const Base_URL = api.defaults.baseURL ;
 const { width } = Dimensions.get("window");
 const AUTO_SLIDE_INTERVAL_MS = 4000;
@@ -160,8 +161,11 @@ export default function DogDetailPage() {
   }
 
   return (
+    <SafeAreaView style={styles.safeArea}
+     >
+          <HeaderMenu/>
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      <View style={styles.heroBanner} />
+    
       
       <View style={styles.contentWrapper}>
         {/* Breadcrumb */}
@@ -341,10 +345,15 @@ export default function DogDetailPage() {
         </View>
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+   safeArea: {
+    flex: 1,
+    width: "100%",
+  },
   container: {
     flex: 1,
     backgroundColor: "#f9fafb",
@@ -380,10 +389,7 @@ const styles = StyleSheet.create({
     color: "#6b7280",
     textAlign: "center",
   },
-  heroBanner: {
-    height: 100,
-    backgroundColor: "#ea580c",
-  },
+
   contentWrapper: {
     padding: 16,
     marginTop: -20,
@@ -523,7 +529,7 @@ const styles = StyleSheet.create({
   priceText: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#ea580c",
+    color: "#191C33",
     marginBottom: 16,
   },
   actionButtonsRow: {
@@ -544,7 +550,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   gradientButton: {
-    backgroundColor: "#ea580c",
+    backgroundColor: "#FFAC0D",
   },
   actionButtonText: {
     color: "#ffffff",
@@ -618,6 +624,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 3,
     elevation: 3,
+    backgroundColor:"#FFAC0D",
   },
   buyButtonText: {
     color: "#ffffff",
