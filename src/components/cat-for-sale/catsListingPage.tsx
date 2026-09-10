@@ -226,7 +226,7 @@ const handleViewPet = (pet: any) => {
 
   // Expo Router push with slug and parameters
   router.push({
-  pathname: "/(cats)/[id]", // Matches your folder name [id]
+  pathname: "/(cats)/pet/[id]", // Matches your folder name [id]
   params: { 
     id: petId,             // This satisfies the [id] dynamic route segment
     slug: petSlug,         // Extra info passed along

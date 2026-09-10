@@ -196,7 +196,7 @@ export default function DogsScreen() {
 
     // Expo Router push targeting dog route segment
     router.push({
-      pathname: "/(dogs)/[id]",
+      pathname: "/(dogs)/pet/[id]",
       params: {
         id: petId,
         slug: petSlug,

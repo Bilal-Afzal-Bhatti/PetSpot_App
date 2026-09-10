@@ -9,6 +9,7 @@ import {
   Dimensions,
   ActivityIndicator,
   Linking,
+  Platform,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -39,7 +40,7 @@ export default function DogDetailPage() {
     getAdById?: (adId: string) => Promise<any>;
     getApprovedAdById?: (adId: string) => Promise<any>;
   } : never;
-  const {} = useBuyStore();
+  const { setSelectedPet } = useBuyStore();
   
   const [pet, setPet] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -120,14 +121,25 @@ export default function DogDetailPage() {
   };
 
   const handleBuyNow = () => {
+    if (!pet) return;
+    setSelectedPet(pet);
+
     const petId = (pet._id || pet.id || id || "").toString();
     const petBreed = pet.breed || "dog";
-    const petSlug = pet.slug || `${slugify(pet.name)}-${slugify(petBreed)}-${petId.slice(-6)}`;
+    const petName = pet.name || "pet";
+    const petSlug = pet.slug || `${slugify(petName)}-${slugify(petBreed)}`;
 
-    // Note: sessionStorage is web-specific. In React Native apps, use global state stores or AsyncStorage if persistence is needed.
-    router.push(`/checkout/${petSlug}`);
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      sessionStorage.setItem("selectedPetData", JSON.stringify(pet));
+      if (petId) sessionStorage.setItem("currentPetId", petId);
+    }
+
+    router.push({
+      pathname: "/checkout/[id]",
+      params: { id: petId || "", slug: petSlug },
+    });
   };
-
+  
   if (loading) {
     return (
       <View style={styles.centerContainer}>
@@ -158,7 +170,7 @@ export default function DogDetailPage() {
             <Text style={styles.breadcrumbLink}>Home</Text>
           </TouchableOpacity>
           <Text style={styles.breadcrumbSeparator}>→</Text>
-          <TouchableOpacity onPress={() => router.push("/for-sale/index")}>
+          <TouchableOpacity onPress={() => router.push("/(dogs)/for-sale")}>
             <Text style={styles.breadcrumbLink}>Dogs</Text>
           </TouchableOpacity>
           <Text style={styles.breadcrumbSeparator}>→</Text>

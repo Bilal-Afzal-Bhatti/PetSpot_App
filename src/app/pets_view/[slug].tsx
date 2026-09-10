@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import {
   Platform,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { Base_URL } from "@/../Store/AdsStore";
@@ -57,7 +58,6 @@ export default function PetDetailPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const params = useLocalSearchParams<{ slug: string; id?: string; category?: string }>();
-  console.log("params", params);
   const apiBaseUrl = typeof Base_URL === "string" ? Base_URL : "";
 
   const getAdById = async (targetId?: string | string[], category = "dogs") => {
@@ -65,7 +65,6 @@ export default function PetDetailPage() {
 
     const id = Array.isArray(targetId) ? targetId[0] : targetId;
     if (!id || !apiBaseUrl) return null;
-    console.log("id", id, "category", category);
 
     try {
       const response = await axios.get(
@@ -80,30 +79,43 @@ export default function PetDetailPage() {
 
   const [pet, setPet] = useState<any>(null);
 
-  useEffect(() => {
-    const fetchPet = async () => {
-      setLoading(true);
-      const targetId = params.id;
+  // useFocusEffect runs every time the screen comes into focus (e.g. pressing back from checkout)
+  useFocusEffect(
+    useCallback(() => {
+      let isMounted = true;
 
-      if (!targetId) {
-        console.warn("No pet id in route params — cannot fetch pet details.");
-        setPet(null);
-        setLoading(false);
-        return;
-      }
+      const fetchPet = async () => {
+        setLoading(true);
+        const targetId = params.id;
 
-      const data = await getAdById(targetId, params.category || "dogs");
-      setPet(data);
+        if (!targetId) {
+          console.warn("No pet id in route params — cannot fetch pet details.");
+          if (isMounted) {
+            setPet(null);
+            setLoading(false);
+          }
+          return;
+        }
 
-      if (data) {
-        setSelectedPet(data);
-      }
+        const data = await getAdById(targetId, params.category || "dogs");
+        
+        if (isMounted) {
+          setPet(data);
+          if (data) {
+            setSelectedPet(data);
+          }
+          setLoading(false);
+        }
+      };
 
-      setLoading(false);
-    };
+      fetchPet();
 
-    fetchPet();
-  }, [params.id, params.category]);
+      return () => {
+        isMounted = false;
+      };
+    }, [params.id, params.category])
+  );
+
   if (loading) {
     return (
       <View style={styles.centerContainer}>
@@ -151,7 +163,6 @@ export default function PetDetailPage() {
       if (petId) sessionStorage.setItem("currentPetId", petId);
     }
 
-    // Expo Router navigation to Checkout
     router.push({
       pathname: "/checkout/[id]",
       params: { id: petId || "", slug: petSlug },
@@ -162,14 +173,12 @@ export default function PetDetailPage() {
     <SafeAreaView style={styles.safeArea}>
       <HeaderMenu/>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Back Button */}
         <TouchableOpacity style={styles.backRow} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={18} color="#4B5563" />
           <Text style={styles.backRowText}>Back to Listings</Text>
         </TouchableOpacity>
 
         <View style={styles.mainCard}>
-          {/* Main Hero Image */}
           <TouchableOpacity
             style={styles.imageBannerWrapper}
             activeOpacity={0.9}
@@ -185,7 +194,6 @@ export default function PetDetailPage() {
             </View>
           </TouchableOpacity>
 
-          {/* Thumbnails */}
           {images.length > 1 && (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.thumbList}>
               {images.map((img: string, idx: number) => {
@@ -204,7 +212,6 @@ export default function PetDetailPage() {
             </ScrollView>
           )}
 
-          {/* Details Section */}
           <View style={styles.detailsContainer}>
             <View style={styles.titlePriceRow}>
               <Text style={styles.petTitle}>{petName}</Text>
@@ -215,7 +222,6 @@ export default function PetDetailPage() {
 
             <Text style={styles.petCategory}>{petBreed}</Text>
 
-            {/* Spec Badges Grid */}
             <View style={styles.specGrid}>
               <View style={styles.specBox}>
                 <Ionicons name="calendar-outline" size={18} color="#ea580c" />
@@ -242,13 +248,11 @@ export default function PetDetailPage() {
               </View>
             </View>
 
-            {/* Description */}
             <Text style={styles.sectionHeading}>About {petName}</Text>
             <Text style={styles.descriptionText}>
               {pet.description || pet.bio || "No description provided for this pet yet."}
             </Text>
 
-            {/* Actions */}
             <TouchableOpacity style={styles.checkoutBtn} activeOpacity={0.85} onPress={handleBuyNow}>
               <Text style={styles.checkoutBtnText}>Proceed to Checkout</Text>
             </TouchableOpacity>
@@ -261,7 +265,6 @@ export default function PetDetailPage() {
         </View>
       </ScrollView>
 
-      {/* Modal Image Zoom */}
       <Modal visible={isZoomed} transparent animationType="fade">
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setIsZoomed(false)}>
           <Image source={{ uri: currentImageUrl }} style={styles.zoomedImage} resizeMode="contain" />

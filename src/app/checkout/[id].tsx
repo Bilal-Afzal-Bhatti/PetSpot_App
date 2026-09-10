@@ -21,7 +21,7 @@ import * as Linking from "expo-linking";
 import { useAuthStore } from "@/../Store/authStore";
 import { useBuyStore } from "@/../Store/buyStore";
 
-// Fallback storage setup
+// Fallback storage setup with persistence across screen switches
 const memoryStorage: Record<string, string> = {};
 const checkoutStorage = {
   async getItem(key: string): Promise<string | null> {
@@ -56,7 +56,6 @@ export default function CheckoutScreen() {
     checkoutDetails,
     setCheckoutDetails,
     processCheckout,
-    clearCheckout,
     loading,
     error,
   } = useBuyStore() as any;
@@ -74,21 +73,13 @@ export default function CheckoutScreen() {
   const [formError, setFormError] = useState("");
   const [isInitializing, setIsInitializing] = useState(true);
 
-  // Debug log to inspect Auth Store data structure in your console
-  useEffect(() => {
-    console.log("--- DEBUG AUTH STORE ---");
-    console.log("Raw Auth State:", authState);
-    console.log("Resolved Active User:", activeUser);
-    console.log("Resolved Email:", userEmail);
-    console.log("------------------------");
-  }, [authState, activeUser, userEmail]);
-
+  // Load saved pet details & cached checkout info on mount so data remains intact
   useEffect(() => {
     const initCheckout = async () => {
       try {
         const storedPetId = await checkoutStorage.getItem("currentPetId");
 
-        if (storedPetId) {
+        if (storedPetId && !selectedPet) {
           const namespacedPet = await checkoutStorage.getItem(`selectedPetData_${storedPetId}`);
 
           if (namespacedPet) {
@@ -112,6 +103,17 @@ export default function CheckoutScreen() {
             }
           }
         }
+
+        // Restore cached draft form input if available
+        const savedDraft = await checkoutStorage.getItem("checkoutDraftDetails");
+        if (savedDraft) {
+          try {
+            const parsedDraft = JSON.parse(savedDraft);
+            setCheckoutDetails(parsedDraft);
+          } catch (e) {
+            console.error("Failed to parse draft checkout details", e);
+          }
+        }
       } catch (err) {
         console.error("AsyncStorage error during init:", err);
       }
@@ -122,24 +124,33 @@ export default function CheckoutScreen() {
     initCheckout();
   }, []);
 
+  // Automatically save form inputs as draft so info isn't lost when going back
+  const handleInputChange = (field: string, value: string) => {
+    const updatedDetails = { ...(checkoutDetails || {}), [field]: value };
+    setCheckoutDetails({ [field]: value });
+    if (formError) setFormError("");
+
+    try {
+      checkoutStorage.setItem("checkoutDraftDetails", JSON.stringify(updatedDetails));
+    } catch (e) {
+      console.error("Failed to save draft details", e);
+    }
+  };
+
   // Update checkoutDetails email automatically when user profile becomes available
   useEffect(() => {
     if (userEmail && checkoutDetails?.email !== userEmail) {
-      setCheckoutDetails({ email: userEmail });
+      handleInputChange("email", userEmail);
     }
   }, [userEmail]);
-  const handleInputChange = (field: string, value: string) => {
-    setCheckoutDetails({ [field]: value });
-    if (formError) setFormError("");
-  };
 
   const validateShippingFields = () => {
     if (
-      !checkoutDetails.fullName ||
+      !checkoutDetails?.fullName ||
       !userEmail ||
-      !checkoutDetails.phone ||
-      !checkoutDetails.address ||
-      !checkoutDetails.city
+      !checkoutDetails?.phone ||
+      !checkoutDetails?.address ||
+      !checkoutDetails?.city
     ) {
       setFormError("Please fill out all required shipping and contact fields.");
       return null;
@@ -148,66 +159,72 @@ export default function CheckoutScreen() {
     return userEmail;
   };
 
+  const handleOnlinePayment = async () => {
+    setFormError("");
+    const currentEmail = validateShippingFields();
+    if (!currentEmail) return;
 
-const handleOnlinePayment = async () => {
-  setFormError("");
-  const currentEmail = validateShippingFields();
-  if (!currentEmail) return;
+    setCheckoutDetails({ paymentMethod: "ONLINE", email: currentEmail });
 
-  setCheckoutDetails({ paymentMethod: "ONLINE", email: currentEmail });
+    try {
+      const redirectTo = Linking.createURL("orders/success");
 
-  try {
-    const redirectTo = Linking.createURL("orders/success");
+      const redirectUrl = await processCheckout("ONLINE", {
+        successUrl: `${redirectTo}?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: Linking.createURL("checkout"),
+      });
 
-    const redirectUrl = await processCheckout("ONLINE", {
-      successUrl: `${redirectTo}?session_id={CHECKOUT_SESSION_ID}`,
-      cancelUrl: Linking.createURL("checkout"),
-    });
+      await checkoutStorage.setItem("lastOrderType", "ONLINE");
 
-    await checkoutStorage.setItem("lastOrderType", "ONLINE");
+      if (redirectUrl) {
+        const result = await WebBrowser.openAuthSessionAsync(redirectUrl, redirectTo);
 
-    if (redirectUrl) {
-      const result = await WebBrowser.openAuthSessionAsync(redirectUrl, redirectTo);
+        if (result.type === "success" && result.url) {
+          const url = new URL(result.url);
+          const sessionId = url.searchParams.get("session_id");
 
-      if (result.type === "success" && result.url) {
-        const url = new URL(result.url);
-        const sessionId = url.searchParams.get("session_id");
+          // Clear draft on successful payment completion
+          await checkoutStorage.setItem("checkoutDraftDetails", "");
 
-        router.replace({
-          pathname: "/orders/success",
-          params: sessionId ? { session_id: sessionId } : {},
-        });
-      } else if (result.type === "cancel" || result.type === "dismiss") {
-        Alert.alert("Checkout", "Payment session was closed.");
+          router.replace({
+            pathname: "/orders/success",
+            params: sessionId ? { session_id: sessionId } : {},
+          });
+        } else if (result.type === "cancel" || result.type === "dismiss") {
+          Alert.alert("Checkout", "Payment session was closed. Your details have been saved.");
+        }
+      } else {
+        throw new Error("Stripe redirect URL not received from server.");
       }
-    } else {
-      throw new Error("Stripe redirect URL not received from server.");
+    } catch (err: any) {
+      console.error("Online checkout error:", err);
+      setFormError(err?.message || "Something went wrong starting your payment. Please try again.");
     }
-  } catch (err: any) {
-    console.error("Online checkout error:", err);
-    setFormError(err?.message || "Something went wrong starting your payment. Please try again.");
-  }
-};
-const handleCodPayment = async () => {
-  setFormError("");
-  const currentEmail = validateShippingFields();
-  if (!currentEmail) return;
+  };
 
-  setCheckoutDetails({ paymentMethod: "COD", email: currentEmail });
+  const handleCodPayment = async () => {
+    setFormError("");
+    const currentEmail = validateShippingFields();
+    if (!currentEmail) return;
 
-  try {
-    await processCheckout("COD");
-    await checkoutStorage.setItem("lastOrderType", "COD");
+    setCheckoutDetails({ paymentMethod: "COD", email: currentEmail });
 
-    router.replace({
-      pathname: "/orders/success",
-      params: { type: "cod" },
-    });
-  } catch (err: any) {
-    console.error("COD checkout error:", err);
-    setFormError(err?.message || "Something went wrong placing your order. Please try again.");
-  }
-};
+    try {
+      await processCheckout("COD");
+      await checkoutStorage.setItem("lastOrderType", "COD");
+
+      // Clear draft on successful order placement
+      await checkoutStorage.setItem("checkoutDraftDetails", "");
+
+      router.replace({
+        pathname: "/orders/success",
+        params: { type: "cod" },
+      });
+    } catch (err: any) {
+      console.error("COD checkout error:", err);
+      setFormError(err?.message || "Something went wrong placing your order. Please try again.");
+    }
+  };
 
   if (isInitializing) {
     return (
